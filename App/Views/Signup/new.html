@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Sign up{% endblock %}
+
+{% block body %}
+
+    <h1>Rejestracja</h1>
+	
+	{% if user.errors is not empty %}
+		<p>Błędy:</p>
+		<ul>
+			{% for error in user.errors %}
+				<li>{{ error }}</li>
+			{% endfor %}
+		</ul>
+	{% endif %}
+	
+	<form method="post" action="/signup/create">
+		<div class="form-group">
+			<label for="inputLogin">Login:</label>
+			<input type="text" class="form-control" id="inputLogin" name="login" placeholder="..." value="{{ user.login }}" required>
+		</div>
+		
+		<div class="form-group">
+			<label for="inputEmail1">E-mail:</label>
+			<input type="email" class="form-control" id="inputEmail1" name="email" placeholder="..." value="{{ user.email }}" required>					
+		</div>
+		
+		<div class="form-group">
+			<label for="inputPassword1">Hasło:</label>
+			<input type="password" class="form-control" id="inputPassword1" name="password1" placeholder="..." value="" required>					
+		</div>
+		
+		<div class="form-group">
+			<label for="inputPassword2">Powtórz hasło:</label>
+			<input type="password" class="form-control" id="inputPassword2" name="password2" placeholder="..." value="" required>
+		</div>
+		
+		<div class="g-recaptcha form-group" data-sitekey="6LcrPLEUAAAAAPkvodHO2fcpVfAe7dr3faFhSLP6"></div>	
+		
+		<button type="submit" class="btn btn-primary mt-3">Zarejestruj się</button>
+	</form>
+
+{% endblock %}
