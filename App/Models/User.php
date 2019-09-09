@@ -80,6 +80,9 @@ class User extends \Core\Model{
 		if (ctype_alnum($this->login) == false){
 			$this->errors[] = "Login może składać się tylko z liter i cyfr (bez polskich znaków)";
 		}
+		if(static::loginExists($this->login)){
+			$this->errors[] = "Podany login jest już zajęty.";
+		}
 		
 		/**
 		 * Email
@@ -88,9 +91,8 @@ class User extends \Core\Model{
 		
 		if ((filter_var($emailB, FILTER_VALIDATE_EMAIL) == false) || ($emailB != $this->email)){
 			$this->errors[] = "Podaj poprawny adres e-mail!";
-		}
-		
-		if($this->emailExists($this->email)){
+		}	
+		if(static::emailExists($this->email)){
 			$this->errors[] = "Istnieje już konto przypisane do podanego adresu e-mail.";
 		}
 		
@@ -99,16 +101,13 @@ class User extends \Core\Model{
 		 */	
 		if ((strlen($this->password1) < 8) || (strlen($this->password1) > 30)){
 			$this->errors[] = "Hasło musi posiadać od 8 do 30 znaków!";
-		}
-		
+		}	
 		if (preg_match('/.*[a-z]+.*/i', $this->password1) == 0){
 			$this->errors[] = "Hasło musi zawierać przynajmniej jedną literę.";
-		}
-		
+		}	
 		if (preg_match('/.*\d+.*/i', $this->password1) == 0){
 			$this->errors[] = "Hasło musi zawierać przynajmniej jedną cyfrę.";
-		}
-		
+		}	
 		if ($this->password1 != $this->password2){
 			$this->errors[] = "Podane hasła nie są identyczne!";
 		}	
@@ -122,7 +121,7 @@ class User extends \Core\Model{
      *
      * @return boolean TRUE if exists, FALSE otherwise
      */
-	protected function emailExists($email){	
+	public static function emailExists($email){	
 		$db = static::getDB();
 		
 		$sql = 'SELECT * FROM users WHERE email = :email';
@@ -130,6 +129,27 @@ class User extends \Core\Model{
 		$query = $db->prepare($sql);
 		
 		$query->bindValue(':email', $email, PDO::PARAM_STR);
+		
+		$query->execute();
+		
+		return $query->fetch() !== false;
+    }
+	
+	/**
+     * See if a login already exists in database
+	 *
+	 * @param string login to search for
+     *
+     * @return boolean TRUE if exists, FALSE otherwise
+     */
+	public static function loginExists($login){	
+		$db = static::getDB();
+		
+		$sql = 'SELECT * FROM users WHERE login = :login';
+			
+		$query = $db->prepare($sql);
+		
+		$query->bindValue(':login', $login, PDO::PARAM_STR);
 		
 		$query->execute();
 		
