@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use \Core\View;
+use \App\Auth;
 
 /**
  * Home controller
@@ -17,8 +18,7 @@ class Home extends \Core\Controller
      *
      * @return void
      */
-    public function indexAction()
-    {
+    public function indexAction(){
         View::renderTemplate('Home/index.html');
     }
 }

@@ -25,7 +25,7 @@ class User extends \Core\Model{
      *
      * @return void
      */
-    public function __construct($data){
+    public function __construct($data = []){
         foreach($data as $key => $value){
 			$this->$key = $value;
 		}
@@ -143,6 +143,18 @@ class User extends \Core\Model{
      * @return boolean TRUE if exists, FALSE otherwise
      */
 	public static function loginExists($login){	
+		
+		return static::findByLogin($login) !== false;
+    }
+	
+	/**
+     * Find a user model by login
+	 *
+	 * @param string login to search for
+     *
+     * @return mixed User object if found, false otherwise
+     */
+	public static function findByLogin($login){	
 		$db = static::getDB();
 		
 		$sql = 'SELECT * FROM users WHERE login = :login';
@@ -151,8 +163,54 @@ class User extends \Core\Model{
 		
 		$query->bindValue(':login', $login, PDO::PARAM_STR);
 		
+		$query->setFetchMode(PDO::FETCH_CLASS, get_called_class());
+		
 		$query->execute();
 		
-		return $query->fetch() !== false;
+		return $query->fetch();
+    }
+	
+	/**
+     * Aunthenticate user by login and password
+	 *
+	 * @param string $login login
+	 * @param string $password password
+     *
+     * @return mixed the user object or false if authentication fails
+     */
+	public static function authenticate($login, $password){	
+		
+		$user = static::findByLogin($login);
+		
+		if($user){
+			if(password_verify($password, $user->password)){
+				return $user;
+			}
+		}
+		
+		return false;
+    }
+	
+	/**
+     * Find a user model by id
+	 *
+	 * @param string $id
+     *
+     * @return mixed User object if found, false otherwise
+     */
+	public static function findByID($id){	
+		$db = static::getDB();
+		
+		$sql = 'SELECT * FROM users WHERE id = :id';
+			
+		$query = $db->prepare($sql);
+		
+		$query->bindValue(':id', $id, PDO::PARAM_INT);
+		
+		$query->setFetchMode(PDO::FETCH_CLASS, get_called_class());
+		
+		$query->execute();
+		
+		return $query->fetch();
     }
 }
