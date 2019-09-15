@@ -29,16 +29,19 @@ class Login extends \Core\Controller{
 	public function createAction(){
 		 
 		$user = User::authenticate($_POST['login'], $_POST['password']);
+		
+		$rememberMe = isset($_POST['rememberMe']);
 		 
 		if($user){
-			Auth::login($user);
+			Auth::login($user, $rememberMe);
 			Flash::addMessage('Logowanie pomyślne.');
 			$this->redirect(Auth::getReturnToPage());
 		}
 		else{
 			Flash::addMessage('Wystąpił błąd. Prosimy upewnić się, czy podane dane są poprawne, i spróbować ponownie.', Flash::WARNING);
 			View::renderTemplate('Login/new.html', [
-				'login' => $_POST['login']
+				'login' => $_POST['login'],
+				'rememberMe' => $rememberMe,
 			]);
 		}
 	}
