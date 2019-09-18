@@ -100,18 +100,21 @@ class User extends \Core\Model{
 		/**
 		 * Password
 		 */	
-		if ((strlen($this->password1) < 8) || (strlen($this->password1) > 30)){
-			$this->errors[] = "Hasło musi posiadać od 8 do 30 znaków!";
-		}	
-		if (preg_match('/.*[a-z]+.*/i', $this->password1) == 0){
-			$this->errors[] = "Hasło musi zawierać przynajmniej jedną literę.";
-		}	
-		if (preg_match('/.*\d+.*/i', $this->password1) == 0){
-			$this->errors[] = "Hasło musi zawierać przynajmniej jedną cyfrę.";
-		}	
-		if ($this->password1 != $this->password2){
-			$this->errors[] = "Podane hasła nie są identyczne!";
-		}	
+		if(isset($this->password1)){
+			
+			if ((strlen($this->password1) < 8) || (strlen($this->password1) > 30)){
+				$this->errors[] = "Hasło musi posiadać od 8 do 30 znaków!";
+			}	
+			if (preg_match('/.*[a-z]+.*/i', $this->password1) == 0){
+				$this->errors[] = "Hasło musi zawierać przynajmniej jedną literę.";
+			}	
+			if (preg_match('/.*\d+.*/i', $this->password1) == 0){
+				$this->errors[] = "Hasło musi zawierać przynajmniej jedną cyfrę.";
+			}	
+			if ($this->password1 != $this->password2){
+				$this->errors[] = "Podane hasła nie są identyczne!";
+			}
+		}		
 
     }
 	
@@ -119,10 +122,31 @@ class User extends \Core\Model{
      * See if an email already exists in database
 	 *
 	 * @param string email address to search for
+	 * @param string $ignore_id return false anyway if the record has this id
      *
      * @return boolean TRUE if exists, FALSE otherwise
      */
-	public static function emailExists($email){	
+	public static function emailExists($email, $ignore_id = null){	
+		
+		$user = static::findByEmail($email);
+		
+		if($user){
+			if($user->id != $ignore_id){
+				return true;
+			}
+		}
+		
+		return false;
+    }
+	
+	/**
+     * Find a user model by email address
+	 *
+	 * @param string email address to search for
+     *
+     * @return boolean TRUE if exists, FALSE otherwise
+     */
+	public static function findByEmail($email){	
 		$db = static::getDB();
 		
 		$sql = 'SELECT * FROM users WHERE email = :email';
@@ -131,9 +155,11 @@ class User extends \Core\Model{
 		
 		$query->bindValue(':email', $email, PDO::PARAM_STR);
 		
+		$query->setFetchMode(PDO::FETCH_CLASS, get_called_class());
+		
 		$query->execute();
 		
-		return $query->fetch() !== false;
+		return $query->fetch();
     }
 	
 	/**
@@ -239,5 +265,53 @@ class User extends \Core\Model{
 		$query->bindValue(':expires_at', date('Y-m-d H:i:s', $this->expiryTimestamp), PDO::PARAM_STR);
 		
 		return $query->execute();
+    }
+	
+	/**
+     * Update the user's profile
+	 *
+	 * @param array $data from the edit profile form
+     *
+     * @return boolean true if success, false otherwise
+     */
+	public function updateProfile($data){	
+		
+		$this->login = $data['login'];
+		$this->email = $data['email'];
+		
+		if($data['password1'] != ''){
+			$this->password1 = $data['password1'];
+		}
+		
+		$this->validate();
+		
+		if(empty($this->errors)){
+			$db = static::getDB();
+		
+			$sql = 'UPDATE users
+					SET login = :login,
+					email = :email';
+					
+			if(isset($this->password1)){
+				$sql .= ', password = :password_hash';
+			}
+			
+			$sql .= ' WHERE id = :id';
+				
+			$query = $db->prepare($sql);
+			
+			$query->bindValue(':login', $this->login, PDO::PARAM_STR);
+			$query->bindValue(':email', $this->email, PDO::PARAM_STR);
+			$query->bindValue(':id', $this->id, PDO::PARAM_INT);
+			
+			if(isset($this->password1)){
+				$password_hash = password_hash($this->password1, PASSWORD_DEFAULT);
+				$query->bindValue(':password_hash', $password_hash, PDO::PARAM_STR);
+			}
+			
+			return $query->execute();
+		}
+		
+		return false;
     }
 }

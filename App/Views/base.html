@@ -3,18 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %}</title>
+	<link rel="stylesheet" href="/css/bootstrap.css"/>
 	<link rel="stylesheet" href="/css/styles.css"/>
 </head>
 <body>
-
-    {% for message in flash_messages %}
-		<div class="alert alert-{{ message.type }}">
-			{{ message.body }}
-		</div>
-    {% endfor %}
 	
-	{% block body %}
-    {% endblock %}
+	<div class="container">
+
+		<header class="sticky-top">
+			
+			{% if current_user %}
+		
+			<nav class="navbar navbar-dark bg-primary border-bottom shadow mb-5 navbar-expand-lg">
+		
+				<a class="navbar-brand" href="/"><img src="css/img/coins.png" width="30" height="30" class="d-inline-block mr-1 align-bottom" alt=""> GroszDoGrosza.pl </a>
+				
+				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainmenu" aria-controls="mainmenu" aria-expanded="false" aria-label="Przełącznik nawigacji">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+			
+				<div class="collapse navbar-collapse" id="mainmenu">
+				
+					<ul class="navbar-nav mr-auto">
+					
+						<li class="nav-item active">
+							<a class="nav-link" href="addIncome.php"> Dodaj przychód </a>
+						</li>
+						
+						<li class="nav-item">
+							<a class="nav-link" href="addExpense.php"> Dodaj wydatek </a>
+						</li>
+						
+						<li class="nav-item">
+							<a class="nav-link" href="viewBalance.php"> Przeglądaj bilans </a>
+						</li>
+						
+						<li class="nav-item">
+							<a class="nav-link" href="settings.php"> Ustawienia </a>
+						</li>
+						
+						<li class="nav-item">
+							<a class="nav-link" href="/logout"> Wyloguj się </a>
+						</li>
+					
+					</ul>
+				
+				</div>
+				
+			</nav>
+			
+			{% endif %}
+			
+		</header>
+
+		{% for message in flash_messages %}
+			<div class="alert alert-{{ message.type }}">
+				{{ message.body }}
+			</div>
+		{% endfor %}
+		
+		{% block body %}
+		{% endblock %}
+	
+	</div>
 	
 	<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.1/dist/jquery.validate.min.js"></script>
