@@ -9,14 +9,14 @@ use \App\Auth;
  * Items controller
  *
  */
-class Items extends Authenticated{
+class Income extends Authenticated{
 	
 	/**
-	 * Items index
+	 * Adding new income
 	 *
 	 * @return void
 	 */
-	 public function indexAction(){
-		 View::renderTemplate('Items/index.html');
+	 public function newAction(){
+		 View::renderTemplate('Income/new.html');
 	 }
 }

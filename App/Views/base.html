@@ -1,76 +1,98 @@
 <!DOCTYPE html>
-<html>
+<html lang="pl">
+
 <head>
     <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	
     <title>{% block title %}{% endblock %}</title>
+	
+	<meta name="description" content="Aplikacja internetowa do planowania domowego budżetu" />
+	<meta name="keywords" content="budżet, oszczędzanie, pieniądze, planowanie, wydatki" />
+	<meta name="author" content="Marcin Zapała" />
+	
 	<link rel="stylesheet" href="/css/bootstrap.css"/>
 	<link rel="stylesheet" href="/css/styles.css"/>
+	
+	<link href="https://fonts.googleapis.com/css?family=Exo:400,700&display=swap&subset=latin-ext" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&amp;subset=latin-ext" rel="stylesheet">
+	
+	{% block headScripts %}
+	{% endblock %}
+	
 </head>
+
 <body>
 	
-	<div class="container">
+	<div id="wrap">
 
 		<header class="sticky-top">
-			
-			{% if current_user %}
 		
 			<nav class="navbar navbar-dark bg-primary border-bottom shadow mb-5 navbar-expand-lg">
 		
-				<a class="navbar-brand" href="/"><img src="css/img/coins.png" width="30" height="30" class="d-inline-block mr-1 align-bottom" alt=""> GroszDoGrosza.pl </a>
+				<a class="navbar-brand" href="/menu/index"><div id="logo" class="d-inline-block mr-1 align-bottom" alt=""></div> GroszDoGrosza.pl </a>
 				
-				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainmenu" aria-controls="mainmenu" aria-expanded="false" aria-label="Przełącznik nawigacji">
-					<span class="navbar-toggler-icon"></span>
-				</button>
-			
-				<div class="collapse navbar-collapse" id="mainmenu">
+				{% if current_user %}
 				
-					<ul class="navbar-nav mr-auto">
+					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="/" aria-controls="mainmenu" aria-expanded="false" aria-label="Przełącznik nawigacji">
+						<span class="navbar-toggler-icon"></span>
+					</button>
+				
+					<div class="collapse navbar-collapse" id="mainmenu">
 					
-						<li class="nav-item active">
-							<a class="nav-link" href="addIncome.php"> Dodaj przychód </a>
-						</li>
+						<ul class="navbar-nav mr-auto">
 						
-						<li class="nav-item">
-							<a class="nav-link" href="addExpense.php"> Dodaj wydatek </a>
-						</li>
+							<li class="nav-item active">
+								<a class="nav-link" href="/income/new"> Dodaj przychód </a>
+							</li>
+							
+							<li class="nav-item">
+								<a class="nav-link" href="/expense/new"> Dodaj wydatek </a>
+							</li>
+							
+							<li class="nav-item">
+								<a class="nav-link" href="/balance/view"> Przeglądaj bilans </a>
+							</li>
+							
+							<li class="nav-item">
+								<a class="nav-link" href="/settings/view"> Ustawienia </a>
+							</li>
+							
+							<li class="nav-item">
+								<a class="nav-link" href="/logout"> Wyloguj się </a>
+							</li>
 						
-						<li class="nav-item">
-							<a class="nav-link" href="viewBalance.php"> Przeglądaj bilans </a>
-						</li>
-						
-						<li class="nav-item">
-							<a class="nav-link" href="settings.php"> Ustawienia </a>
-						</li>
-						
-						<li class="nav-item">
-							<a class="nav-link" href="/logout"> Wyloguj się </a>
-						</li>
+						</ul>
 					
-					</ul>
+					</div>
 				
-				</div>
+				{% endif %}
 				
 			</nav>
-			
-			{% endif %}
-			
+				
 		</header>
-
-		{% for message in flash_messages %}
-			<div class="alert alert-{{ message.type }}">
-				{{ message.body }}
-			</div>
-		{% endfor %}
 		
-		{% block body %}
-		{% endblock %}
+		<main>	
+			
+			{% block body %}
+			{% endblock %}
+		
+		</main>
 	
 	</div>
 	
 	<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.1/dist/jquery.validate.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+	<script src="js/bootstrap.min.js"></script>
 	
-	{% block footer %}
-	{% endblock %}
+	<footer class="page-footer font-small bg-primary text-white mt-auto border-top">
+
+	  <div class="footer-copyright text-center py-3">
+		GroszDoGrosza.pl © 2019; Icons made by <a href="https://www.flaticon.com/authors/smashicons" class="badge badge-secondary" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" class="badge badge-secondary" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" class="badge badge-secondary" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>
+	  </div>
+	  
+	</footer>
+	
 </body>
 </html>

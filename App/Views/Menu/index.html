@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Grosz do grosza - Menu{% endblock %}
+
+{% block body %}
+	
+	<section>
+		
+		<div class="container jumbotron shadow-lg">
+		
+			<header>
+				<h1> Menu </h1>
+			</header>
+			
+			<hr class="my-4">
+			
+			{% for message in flash_messages %}
+				<div class="alert alert-{{ message.type }}">
+					{{ message.body }}
+				</div>
+			{% endfor %}
+			
+			<a href="/income/new" class="btn btn-primary btn-lg btn-block my-3" role="button">Dodaj przychód</a>
+			<a href="/expense/new" class="btn btn-primary btn-lg btn-block my-3" role="button">Dodaj wydatek</a>
+			<a href="/balance/view" class="btn btn-primary btn-lg btn-block my-3" role="button">Przeglądaj bilans</a>
+			<a href="settings/view" class="btn btn-info btn-lg btn-block my-3" role="button">Ustawienia</a>
+			<a href="/logout" class="btn btn-secondary btn-lg btn-block my-3" role="button">Wyloguj</a>
+			
+		</div>
+	
+	</section>
+
+{% endblock %}

@@ -38,7 +38,7 @@ class Login extends \Core\Controller{
 			$this->redirect(Auth::getReturnToPage());
 		}
 		else{
-			Flash::addMessage('Wystąpił błąd. Prosimy upewnić się, czy podane dane są poprawne, i spróbować ponownie.', Flash::WARNING);
+			Flash::addMessage('Wystąpił błąd. Prosimy upewnić się, czy podane dane są poprawne i spróbować ponownie.', Flash::WARNING);
 			View::renderTemplate('Login/new.html', [
 				'login' => $_POST['login'],
 				'rememberMe' => $rememberMe,

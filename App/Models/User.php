@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use App\Token;
 
 use PDO;
@@ -17,7 +18,10 @@ class User extends \Core\Model{
 	 *@var array
      *
      */
-    public $errors = [];
+    public $errorsLogin = [];
+    public $errorsEmail = [];
+    public $errorsPassword = [];
+    public $errorsCaptcha = [];
 	
 	/**
      * Class constructor
@@ -41,7 +45,7 @@ class User extends \Core\Model{
 		
 		$this->validate();
 		
-		if(empty($this->errors)){
+		if( empty($this->errorsLogin) && empty($this->errorsEmail) && empty($this->errorsPassword) && empty($this->errorsCaptcha) ){
 			
 			$db = static::getDB();
 			
@@ -73,16 +77,16 @@ class User extends \Core\Model{
 		 * Login
 		 */
 		if ($this->login == ''){
-			$this->errors[] = "Login jest wymagany.";
+			$this->errorsLogin[] = "Login jest wymagany.";
 		}
 		if ((strlen($this->login) < 3) || (strlen($this->login) > 20)){
-			$this->errors[] = "Login musi posiadać od 3 do 20 znaków!";
+			$this->errorsLogin[] = "Login musi posiadać od 3 do 20 znaków!";
 		}
 		if (ctype_alnum($this->login) == false){
-			$this->errors[] = "Login może składać się tylko z liter i cyfr (bez polskich znaków)";
+			$this->errorsLogin[] = "Login może składać się tylko z liter i cyfr (bez polskich znaków)";
 		}
 		if(static::loginExists($this->login)){
-			$this->errors[] = "Podany login jest już zajęty.";
+			$this->errorsLogin[] = "Podany login jest już zajęty.";
 		}
 		
 		/**
@@ -91,10 +95,10 @@ class User extends \Core\Model{
 		$emailB = filter_var($this->email, FILTER_SANITIZE_EMAIL);
 		
 		if ((filter_var($emailB, FILTER_VALIDATE_EMAIL) == false) || ($emailB != $this->email)){
-			$this->errors[] = "Podaj poprawny adres e-mail!";
+			$this->errorsEmail[] = "Podaj poprawny adres e-mail!";
 		}	
 		if(static::emailExists($this->email)){
-			$this->errors[] = "Istnieje już konto przypisane do podanego adresu e-mail.";
+			$this->errorsEmail[] = "Istnieje już konto przypisane do podanego adresu e-mail.";
 		}
 		
 		/**
@@ -103,17 +107,30 @@ class User extends \Core\Model{
 		if(isset($this->password1)){
 			
 			if ((strlen($this->password1) < 8) || (strlen($this->password1) > 30)){
-				$this->errors[] = "Hasło musi posiadać od 8 do 30 znaków!";
+				$this->errorsPassword[] = "Hasło musi posiadać od 8 do 30 znaków!";
 			}	
 			if (preg_match('/.*[a-z]+.*/i', $this->password1) == 0){
-				$this->errors[] = "Hasło musi zawierać przynajmniej jedną literę.";
+				$this->errorsPassword[] = "Hasło musi zawierać przynajmniej jedną literę.";
 			}	
 			if (preg_match('/.*\d+.*/i', $this->password1) == 0){
-				$this->errors[] = "Hasło musi zawierać przynajmniej jedną cyfrę.";
+				$this->errorsPassword[] = "Hasło musi zawierać przynajmniej jedną cyfrę.";
 			}	
 			if ($this->password1 != $this->password2){
-				$this->errors[] = "Podane hasła nie są identyczne!";
+				$this->errorsPassword[] = "Podane hasła nie są identyczne!";
 			}
+		}
+
+		/**
+		 * Captcha
+		 */
+		$secret = \App\Config::CAPTCHA_SECRET;
+		
+		$check = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret='.$secret.'&response='.$_POST['g-recaptcha-response']);
+		
+		$reply = json_decode($check);
+		
+		if ($reply->success == false){
+			$this->errorsCaptcha[] = "Potwierdź, że nie jesteś robotem!";
 		}		
 
     }

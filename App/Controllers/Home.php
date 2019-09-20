@@ -10,8 +10,7 @@ use \App\Auth;
  *
  * PHP version 7.0
  */
-class Home extends \Core\Controller
-{
+class Home extends \Core\Controller{
 
     /**
      * Show the index page
