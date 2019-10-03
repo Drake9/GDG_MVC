@@ -2,6 +2,9 @@
 
 namespace Core;
 
+use \App\Auth;
+use \App\Flash;
+
 /**
  * Base controller
  *
@@ -58,8 +61,7 @@ abstract class Controller
      *
      * @return void
      */
-    protected function before()
-    {
+    protected function before(){
     }
 
     /**
@@ -67,7 +69,32 @@ abstract class Controller
      *
      * @return void
      */
-    protected function after()
-    {
+    protected function after(){
+    }
+	
+	/**
+     * Redirect to a different page
+     *
+     * @param string $url the relative URL
+	 *
+     * @return void
+     */
+    public function redirect($url){
+		header('Location: http://'.$_SERVER['HTTP_HOST'].$url, true, 303);
+		exit;
+    }
+	
+	/**
+     * Require the user to be logged in before giving access to the requested page.
+	 * Remember the requested page for later, then redirect to the login page.
+	 *
+     * @return void
+     */
+    public function requireLogin(){
+		if(! Auth::getUser()){
+			Flash::addMessage('Aby uzyskać dostęp, musisz się zalogować.', Flash::INFO);
+			Auth::rememberRequestedPage();
+			$this->redirect('/login');
+		 }
     }
 }

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Grosz do grosza - Menu{% endblock %}
+
+{% block body %}
+
+    <h1>Witamy!</h1>
+	
+	{% if current_user %}
+	
+		Witaj, {{ current_user.login }}.
+		
+		<a href="/logout">Wyloguj</a>
+		
+	{% else %}
+	
+		<a href="/signup/new">Zarejestruj się</a>
+		
+		<a href="/login">Zaloguj się</a>
+		
+	{% endif %}
+
+{% endblock %}

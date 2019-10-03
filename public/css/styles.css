@@ -1,0 +1,125 @@
+body{
+	background: url('img/coins.jpg') no-repeat center center fixed;
+	background-color: #aa8439;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+}
+
+#logo{
+	background: url('img/coins.png');
+	width: 30px;
+	height: 30px;
+	background-size: cover;
+}
+
+textarea{
+	resize: none;
+}
+
+.amount, th, td{
+	text-align: center;
+}
+
+footer{
+	width: 100%;
+}
+
+.error{
+	color: red;
+}
+
+.alert{
+	margin-top: 1.5rem !important;
+}
+
+.bg-primary{
+	background-color: #226666 !important;
+}
+
+.btn-primary{
+	background-color: #403075 !important;
+	border-color: #13073a !important;
+}
+.btn-primary:hover{
+	background-color: #515192 !important;
+}
+
+.btn-secondary{
+	background-color: #226666 !important;
+	border-color: #003333 !important;
+}
+.btn-secondary:hover{
+	background-color: #407f7f !important;
+}
+
+.btn-info{
+	background-color: #aa8439 !important;
+	border-color: #805c15 !important;
+}
+.btn-info:hover{
+	background-color: #d4b16a !important;
+}
+
+.badge-secondary{
+	background-color: #403075 !important;
+}
+.badge-secondary:hover{
+	background-color: #261758 !important;
+}
+
+.ui-state-highlight{
+	color: #ffffff !important;
+	background-color: #d4b16a !important;
+	border-color: #805c15 !important;
+}
+
+.ui-state-active{
+	background-color: #515192 !important;
+	border-color: #13073a !important;
+}
+
+/**********************************************/
+
+@media only screen and (max-width: 920px)/*, (min-device-width: 768px) and (max-device-width: 1024px)*/{
+
+	/* Force table to not be like tables anymore */
+	.responsiveTable > table, .responsiveTable > table > thead, .responsiveTable > table > tbody, .responsiveTable > table > thead > tr > th, .responsiveTable > table > tbody > tr > td, .responsiveTable > table > thead > tr, .responsiveTable > table > tbody > tr { 
+		display: block; 
+	}
+	
+	/* Hide table headers (but not display: none;, for accessibility) */
+	.responsiveTable > table > thead, .responsiveTable > table > thead > tr { 
+		position: absolute;
+		top: -9999px;
+		left: -9999px;
+	}
+	
+	.responsiveTable > table > thead > tr, .responsiveTable > table > tbody > tr { border: 1px solid #ccc; }
+	
+	.responsiveTable > table > tbody > tr > td { 
+		/* Behave  like a "row" */
+		border: none;
+		border-bottom: 1px solid #eee; 
+		position: relative;
+		padding-left: 50%; 
+	}
+	
+	.responsiveTable > table > tbody > tr > td:before { 
+		/* Now like a table header */
+		position: absolute;
+		/* Top/left values mimic padding */
+		top: 10px;
+		left: 10px;
+		width: 45%; 
+		padding-right: 10px; 
+		white-space: nowrap;
+	}
+	
+	/*
+	Label the data
+	*/
+	.responsiveTable > table > tbody > tr > td:nth-of-type(1):before { content: "data"; }
+	.responsiveTable > table > tbody > tr > td:nth-of-type(2):before { content: "kategoria"; }
+	.responsiveTable > table > tbody > tr > td:nth-of-type(3):before { content: "komentarz"; }
+	.responsiveTable > table > tbody > tr > td:nth-of-type(4):before { content: "kwota"; }
+}

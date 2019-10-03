@@ -1,11 +1,107 @@
 <!DOCTYPE html>
-<html>
+<html lang="pl">
+
 <head>
     <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	
     <title>{% block title %}{% endblock %}</title>
+	
+	<meta name="description" content="Aplikacja internetowa do planowania domowego budżetu" />
+	<meta name="keywords" content="budżet, oszczędzanie, pieniądze, planowanie, wydatki" />
+	<meta name="author" content="Marcin Zapała" />
+	
+	<link rel="stylesheet" href="/jquery-ui/jquery-ui.min.css">
+	<link rel="stylesheet" href="/css/bootstrap.css"/>
+	<link rel="stylesheet" href="/css/styles.css"/>
+	
+	<link href="https://fonts.googleapis.com/css?family=Exo:400,700&display=swap&subset=latin-ext" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&amp;subset=latin-ext" rel="stylesheet">
+	
+	{% block headScripts %}
+	{% endblock %}
+	
 </head>
+
 <body>
-    {% block body %}
-    {% endblock %}
+	
+	<div id="wrap">
+
+		<header class="sticky-top">
+		
+			<nav class="navbar navbar-dark bg-primary border-bottom shadow mb-5 navbar-expand-lg">
+		
+				<a class="navbar-brand" href="/menu/index"><div id="logo" class="d-inline-block mr-1 align-bottom" alt=""></div> GroszDoGrosza.pl </a>
+				
+				{% if (current_user and not no_navbar) %}
+				
+					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="/" aria-controls="mainmenu" aria-expanded="false" aria-label="Przełącznik nawigacji">
+						<span class="navbar-toggler-icon"></span>
+					</button>
+				
+					<div class="collapse navbar-collapse" id="mainmenu">
+					
+						<ul class="navbar-nav mr-auto">
+						
+							<li {% if income %}class="nav-item active"{% else %}class="nav-item"{% endif %}>
+								<a class="nav-link" href="/income/new"> Dodaj przychód </a>
+							</li>
+							
+							<li {% if expense %}class="nav-item active"{% else %}class="nav-item"{% endif %}>
+								<a class="nav-link" href="/expense/new"> Dodaj wydatek </a>
+							</li>
+							
+							<li {% if balance %}class="nav-item active"{% else %}class="nav-item"{% endif %}>
+								<a class="nav-link" href="/balance/view"> Przeglądaj bilans </a>
+							</li>
+							
+							<li {% if settings %}class="nav-item active"{% else %}class="nav-item"{% endif %}>
+								<a class="nav-link" href="/settings/view"> Ustawienia </a>
+							</li>
+							
+							<li class="nav-item">
+								<a class="nav-link" href="/logout"> Wyloguj się </a>
+							</li>
+						
+						</ul>
+					
+					</div>
+				
+				{% endif %}
+				
+			</nav>
+				
+		</header>
+		
+		<main>	
+			
+			{% block body %}
+			{% endblock %}
+		
+		</main>
+	
+	</div>
+	
+	<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.1/dist/jquery.validate.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	
+<!--
+	<script src="/jquery-ui/external/jquery/jquery.js"></script> -->
+	<script src="/jquery-ui/jquery-ui.min.js"></script>
+	<script src="/jquery-ui/datepicker-pl.js"></script> 
+	
+	<footer class="page-footer font-small bg-primary text-white mt-auto border-top">
+
+		<div class="footer-copyright text-center py-3">
+			GroszDoGrosza.pl © 2019; Icons made by <a href="https://www.flaticon.com/authors/smashicons" class="badge badge-secondary" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" class="badge badge-secondary" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" class="badge badge-secondary" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>
+		</div>
+		
+		{% block footer %}
+		{% endblock %}
+	  
+	</footer>
+	
 </body>
 </html>
