@@ -1,4 +1,3 @@
-var userID = $("#userID").html();
 var sumTemp = 0;
 var temp;
 var chart;
@@ -122,10 +121,10 @@ $(document).ajaxStop(function(){
 /**----------          ---------- INCOMES ----------          ----------**/
 
 function loadIncomesByCategories(start, end){
-	var userData ={'userID': userID, 'periodStart': start, 'periodEnd': end};
+	var userData ={'periodStart': start, 'periodEnd': end};
 	
         $.ajax({
-			url : 'ajaxIncomesCategories.php',
+			url : '/balance/loadIncomesByCategories',
 			data : userData,
 			type : 'POST',
 			dataType : 'text',
@@ -136,14 +135,9 @@ function loadIncomesByCategories(start, end){
 				viewIncomesByCategories(categoriesData);
 			},
 		  
-			error : function(xhr, status) {
-				alert('Przepraszamy, wystąpił problem! (ajaxIncomesCategories)');
+			error : function(xhr, status, error) {
+				alert('Przepraszamy, wystąpił problem! (income categories) ' + error);
 			},
-			/*
-			complete : function(xhr, status) {
-				alert('Żądanie wykonane!');
-			}
-			*/
 		});
 }
 
@@ -162,20 +156,21 @@ function viewIncomeCategory(category){
 /*************************/
 
 function loadIncomesDetails(start, end){
-	var userData ={'userID': userID, 'periodStart': start, 'periodEnd': end};
+	var userData ={'periodStart': start, 'periodEnd': end};
 	$.ajax({
-		url : 'ajaxIncomesDetails.php',
+		url : '/balance/loadIncomesInDetail',
 		data : userData,
 		type : 'POST',
 		dataType : 'text',
 	  
 		success : function(json) {
+			//console.log("Received: " + json);
 			var incomesData = JSON.parse(json);
 			viewIncomesDetails(incomesData);
 		},
 	  
-		error : function(xhr, status) {
-			alert('Przepraszamy, wystąpił problem! (ajaxIncomesDetails)');
+		error : function(xhr, status, error) {
+			alert('Przepraszamy, wystąpił problem! (incomes details) ' + error);
 		},
 	});
 }
@@ -192,20 +187,21 @@ function viewIncomeDetails(income){
 /**----------          ---------- EXPENSES ----------          ----------**/
 
 function loadExpensesByCategories(start, end){
-	var userData ={'userID': userID, 'periodStart': start, 'periodEnd': end};
+	var userData ={'periodStart': start, 'periodEnd': end};
 	$.ajax({
-		url : 'ajaxExpensesCategories.php',
+		url : '/balance/loadExpensesByCategories',
 		data : userData,
 		type : 'POST',
 		dataType : 'text',
 	  
 		success : function(json) {
+			//console.log("Received: " + json);
 			var categoriesData = JSON.parse(json);
 			viewExpensesByCategories(categoriesData);
 		},
 	  
-		error : function(xhr, status) {
-			alert('Przepraszamy, wystąpił problem! (ajaxExpensesCategories)');
+		error : function(xhr, status, error) {
+			alert('Przepraszamy, wystąpił problem! (expenses categories) ' + error);
 		},
 	});
 }
@@ -260,20 +256,21 @@ function reloadChart(data){
 /*************************/
 
 function loadExpensesDetails(start, end){
-	var userData ={'userID': userID, 'periodStart': start, 'periodEnd': end};
+	var userData ={'periodStart': start, 'periodEnd': end};
 	$.ajax({
-		url : 'ajaxExpensesDetails.php',
+		url : '/balance/loadExpensesInDetail',
 		data : userData,
 		type : 'POST',
 		dataType : 'text',
 	  
 		success : function(json) {
+			//console.log("Received: " + json);
 			var expensesData = JSON.parse(json);
 			viewExpensesDetails(expensesData);
 		},
 	  
-		error : function(xhr, status) {
-			alert('Przepraszamy, wystąpił problem! (ajaxExpensesDetails)');
+		error : function(xhr, status, error) {
+			alert('Przepraszamy, wystąpił problem! (expenses details) ' + error);
 		},
 	});
 }

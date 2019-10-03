@@ -3,19 +3,13 @@
 {% block title %}Grosz do grosza - Dodaj przychód{% endblock %}
 
 {% block headScripts %}
-	<link rel="stylesheet" href="jquery-ui/jquery-ui.min.css">
-	<script src="jquery-ui/external/jquery/jquery.js"></script>
-	<script src="jquery-ui/jquery-ui.min.js"></script>
-	<script src="jquery-ui/datepicker-pl.js"></script>
+	
 {% endblock %}
 
 
 {% block footer %}
-
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 	
-	<script src="js/bootstrap.min.js"></script>
-	<script src="addTransaction.js"></script>
+	<script src="/myJS/addTransaction.js"></script>
 	
 {% endblock %}
 
@@ -25,44 +19,93 @@
 		
 		<div class="container jumbotron shadow-lg">
 			
-				<header>
-					<h1>
-						Dodawanie przychodu
-					</h1>
-				</header>
-				
-				<hr class="my-4">
-				
-				<form method="post" enctype="multipart/form-data">
-				
-					<div class="form-group">
-						<label for="amount"> Kwota przychodu </label>
-						<input type="number" class="form-control" id="amount" name="amount" step="0.01" min="0.01" required>
-					</div>
-				
-					<div class="form-group">
-						<label for="date"> Data </label>
-						<input type="text" class="form-control" id="date" name="date" required>
-					</div>
-				
-					<div class="form-group">
-						<label for="category"> Kategoria </label>
-						<select class="custom-select form-control" id="category" name="category" required>
-							<option value=""> Wybierz kategorię </option>
-						</select>
-					</div>
+			<header>
+				<h1>
+					Dodawanie przychodu
+				</h1>
+			</header>
+			
+			<hr class="my-4">
+			
+			{% for message in flash_messages %}
+				<div class="alert alert-{{ message.type }}">
+					{{ message.body }}
+				</div>
+			{% endfor %}
+			
+			<form method="post" action="/income/create" enctype="multipart/form-data">
+			
+				<div class="form-group">
+					<label for="amount"> Kwota przychodu </label>
+					<input type="number" class="form-control" id="amount" name="amount" step="0.01" min="0.01" required>
 					
-					<div class="form-group">
-						<label for="comment"> Komentarz (opcjonalnie) </label>
-						<textarea class="form-control" name="comment" id="comment" rows="2" cols="50" maxlength="100" minlength="10"></textarea>
-					</div>
+					{% if income.errorsAmount is not empty %}
+						<div class="error">
+							<ul>
+								{% for error in income.errorsAmount %}
+									<li>{{ error }}</li>
+								{% endfor %}
+							</ul>
+						</div>
+					{% endif %}
+				</div>
+			
+				<div class="form-group">
+					<label for="date"> Data </label>
+					<input type="text" class="form-control" id="date" name="date" required>
 					
-					<button type="submit" class="btn btn-success"> Dodaj </button>
-					<button type="reset" class="btn btn-warning mx-sm-3"> Wyczyść </button>
-					<a class="btn btn-danger" href="menu.php"> Anuluj </a>
-				</form>
+					{% if income.errorsDate is not empty %}
+						<div class="error">
+							<ul>
+								{% for error in income.errorsDate %}
+									<li>{{ error }}</li>
+								{% endfor %}
+							</ul>
+						</div>
+					{% endif %}
+				</div>
+			
+				<div class="form-group">
+					<label for="category"> Kategoria </label>
+					<select class="custom-select form-control" id="category" name="category" required>
+						<option value=""> Wybierz kategorię </option>
+						{% for category in income_categories %}
+							<option value={{ category.id }}> {{ category.name }} </option>;
+						{% endfor %}
+					</select>
+					
+					{% if income.errorsCategory is not empty %}
+						<div class="error">
+							<ul>
+								{% for error in income.errorsCategory %}
+									<li>{{ error }}</li>
+								{% endfor %}
+							</ul>
+						</div>
+					{% endif %}
+				</div>
 				
-			</div>
+				<div class="form-group">
+					<label for="comment"> Komentarz (opcjonalnie) </label>
+					<textarea class="form-control" name="comment" id="comment" rows="2" cols="50" maxlength="100" minlength="10"></textarea>
+					
+					{% if income.errorsComment is not empty %}
+						<div class="error">
+							<ul>
+								{% for error in income.errorsComment %}
+									<li>{{ error }}</li>
+								{% endfor %}
+							</ul>
+						</div>
+					{% endif %}
+				</div>
+				
+				<button type="submit" class="btn btn-success"> Dodaj </button>
+				<button type="reset" class="btn btn-warning mx-sm-3"> Wyczyść </button>
+				<a class="btn btn-danger" href="/menu/index"> Anuluj </a>
+			</form>
+				
+		</div>
 	
 	</section>
 

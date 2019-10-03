@@ -16,7 +16,9 @@ class Menu extends Authenticated{
 	 * @return void
 	 */
 	public function indexAction(){
-		View::renderTemplate('Menu/index.html');
+		View::renderTemplate('Menu/index.html', [
+			'no_navbar' => true
+		]);
 	}
 
 }

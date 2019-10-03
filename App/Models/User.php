@@ -26,7 +26,7 @@ class User extends \Core\Model{
 	/**
      * Class constructor
 	 *
-	 *@param array $data  Initial property values
+	 * @param array $data  Initial property values
      *
      * @return void
      */
@@ -39,7 +39,7 @@ class User extends \Core\Model{
     /**
      * Save the user model with the current property values
      *
-     * @return void
+     * @return boolean
      */
     public function save(){
 		
@@ -51,16 +51,23 @@ class User extends \Core\Model{
 			
 			$hash = password_hash($this->password1, PASSWORD_DEFAULT);
 			
-			$sql = 'INSERT INTO users (login, email, password)
-				VALUES (:login, :email, :password)';
+			$db->beginTransaction();
+			
+				$sql = 'INSERT INTO users (login, email, password)
+					VALUES (:login, :email, :password)';
+					
+				$query = $db->prepare($sql);
 				
-			$query = $db->prepare($sql);
+				$query->bindValue(':login', $this->login, PDO::PARAM_STR);
+				$query->bindValue(':email', $this->email, PDO::PARAM_STR);
+				$query->bindValue(':password', $hash, PDO::PARAM_STR);
+				
+				$query->execute();
+				
+				$userWithID = static::findByLogin($this->login);
+				DefaultOptions::addAllDefaultOptions($userWithID->id, $db);
 			
-			$query->bindValue(':login', $this->login, PDO::PARAM_STR);
-			$query->bindValue(':email', $this->email, PDO::PARAM_STR);
-			$query->bindValue(':password', $hash, PDO::PARAM_STR);
-			
-			return $query->execute();
+			return $db->commit();
 		}
 		
 		return false;

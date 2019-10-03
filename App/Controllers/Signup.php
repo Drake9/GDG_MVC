@@ -18,7 +18,9 @@ class Signup extends \Core\Controller{
      * @return void
      */
     public function newAction(){
-        View::renderTemplate('Signup/new.html');
+        View::renderTemplate('Signup/new.html', [
+			'sitekey' => \App\Config::CAPTCHA_SITEKEY
+		]);
     }
 	
 	/**
