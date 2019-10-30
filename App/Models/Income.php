@@ -110,7 +110,7 @@ class Income extends \Core\Model{
 		 * Comment
 		 */
 		if(strlen($this->comment) > 100){
-			$this->errorsComment[] = "Podany komentarz jest za długi.";
+			$this->errorsComment[] = "Pan poeta. Podany komentarz jest za długi.";
 		}
 		else if($this->comment == ""){
 			$this->comment = "-";
