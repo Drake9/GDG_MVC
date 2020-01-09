@@ -13,21 +13,34 @@
 {% block body %}
 
 	<!-- Modal -->
-	<div class="modal fade" id="addOrEditModal" tabindex="-1" role="dialog" aria-labelledby="modalTitle1" aria-hidden="true">
+	<div class="modal fade" id="universalModal" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered" role="document">
 			<div class="modal-content">
 			
 				<div class="modal-header">
-					<h5 class="modal-title" id="modalTitle1">Edycja</h5>
+					<h5 class="modal-title" id="modalTitle">Edycja</h5>
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
 					<div class="form-group">
-						<label for="categoryName"> Nazwa kategorii </label>
-						<input type="text" class="form-control" id="categoryName" name="categoryName" required>
+						<label for="categoryName" id="categoryLabel"> Nazwa kategorii </label>
+						<input type="text" class="form-control" id="categoryName" name="categoryName">
 						<div id="nameComment" class="error"></div>
+						
+						<div id="limitParameters" style="display: none;">
+							<br/>
+							<div class="form-check">
+								<input type="checkbox" class="form-check-input" id="amountLimitCheck">
+								<label class="form-check-label" for="amountLimitCheck">Ustal limit wydatków</label>
+							</div>
+							
+							<label for="amount"> Kwota miesięcznego limitu wydatków </label>
+							<input class="form-control" id="expenseLimit" name="amount" disabled>
+							<div id="amountComment" class="error"></div>
+						</div>
+						
 					</div>
 				</div>
 				<div class="modal-footer">
@@ -40,7 +53,7 @@
 	</div>
 	<!-- Modal end -->
 	
-	<!-- Modal -->
+	<!-- Modal --
 	<div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="modalTitle2" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered" role="document">
 			<div class="modal-content">
@@ -60,6 +73,47 @@
 				</div>
 				<div class="modal-footer">
 					<button type="submit" class="btn btn-success" id="confirmDelete">Potwierdź</button>
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Anuluj</button>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+	<!-- Modal end -->
+	
+	<!-- Modal --
+	<div class="modal fade" id="expenseCategoryModal" tabindex="-1" role="dialog" aria-labelledby="modalTitle3" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+			
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalTitle3">Edycja</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label for="categoryName"> Nazwa kategorii </label>
+						<input type="text" class="form-control" id="categoryName" name="categoryName" required>
+						<div id="nameComment" class="error"></div>
+						
+						<div id="limitParameters" style="display: none;">
+							<br/>
+							<div class="form-check">
+								<input type="checkbox" class="form-check-input" id="amountLimitCheck">
+								<label class="form-check-label" for="amountLimitCheck">Ustal limit wydatków</label>
+							</div>
+							
+							<label for="amount"> Kwota miesięcznego limitu wydatków </label>
+							<input type="number" class="form-control" id="expenseLimit" name="amount" step="0.01" min="0.01" disabled>
+							<div id="amountComment" class="error"></div>
+						</div>
+						
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-success" id="confirm1">Potwierdź</button>
 					<button type="button" class="btn btn-danger" data-dismiss="modal">Anuluj</button>
 				</div>
 				
@@ -132,7 +186,8 @@
 							<table class="table table-striped table-sm">
 								<thead>
 									<tr>
-										<th scope="col" style="width: 60%">kategoria</th>
+										<th scope="col" style="width: 40%">kategoria</th>
+										<th scope="col" style="width: 20%">limit</th>
 										<th scope="col" style="width: 20%"> </th>
 										<th scope="col" style="width: 20%"> </th>
 									</tr>

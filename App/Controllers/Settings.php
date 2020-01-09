@@ -25,6 +25,8 @@ class Settings extends Authenticated{
 		]);
 	}
 	
+	/**----------          ---------- LOADING DATA ----------          ----------**/
+	
 	/**
 	 * Handle request for income categories - ajax 
 	 *
@@ -32,7 +34,7 @@ class Settings extends Authenticated{
 	 */
 	public function loadIncomeCategoriesAction(){
 		
-		$incomeCategories = IncomeCategory::getUserIncomeCategories($_SESSION['userID']);
+		$incomeCategories = IncomeCategory::getUsersCategories($_SESSION['userID']);
 		
 		echo json_encode($incomeCategories);
 	}
@@ -44,7 +46,7 @@ class Settings extends Authenticated{
 	 */
 	public function loadExpenseCategoriesAction(){
 		
-		$expenseCategories = ExpenseCategory::getUserExpenseCategories($_SESSION['userID']);
+		$expenseCategories = ExpenseCategory::getUsersCategories($_SESSION['userID']);
 		
 		echo json_encode($expenseCategories);
 	}
@@ -56,10 +58,12 @@ class Settings extends Authenticated{
 	 */
 	public function loadPaymentMethodsAction(){
 		
-		$paymentMethods = PaymentMethod::getUserPaymentMethods($_SESSION['userID']);
+		$paymentMethods = PaymentMethod::getUsersCategories($_SESSION['userID']);
 		
 		echo json_encode($paymentMethods);
 	}
+	
+	/**----------          ---------- INCOME CATEGORIES ----------          ----------**/
 	
 	/**
 	 * Handle request for adding income category - ajax 
@@ -72,9 +76,7 @@ class Settings extends Authenticated{
 		
 		$incomeCategory = new IncomeCategory($data);
 		
-		$incomeCategory->save();
-		
-		echo json_encode($incomeCategory->error);
+		echo json_encode($incomeCategory->save());
 	}
 	
 	/**
@@ -88,9 +90,7 @@ class Settings extends Authenticated{
 		
 		$incomeCategory = new IncomeCategory($data);
 		
-		$incomeCategory->update();
-		
-		echo json_encode($incomeCategory->error);
+		echo json_encode($incomeCategory->update());
 	}
 	
 	/**
@@ -105,5 +105,105 @@ class Settings extends Authenticated{
 		$incomeCategory = new IncomeCategory($data);
 		
 		echo json_encode($incomeCategory->delete());
+	}
+	
+	/**----------          ---------- EXPENSE CATEGORIES ----------          ----------**/
+	
+	/**
+	 * Handle request for adding expense category - ajax 
+	 *
+	 * @return json
+	 */
+	public function addExpenseCategoryAction(){
+		
+		if( isset($_POST['expenseLimit']) ){
+			$data = array("user_id" => $_SESSION['userID'], "name" => $_POST['name'], "amount_limit" => $_POST['expenseLimit']);
+		}else{
+			$data = array("user_id" => $_SESSION['userID'], "name" => $_POST['name']);
+		}
+		
+		$expenseCategory = new ExpenseCategory($data);
+		
+		//$expenseCategory->save();
+		
+		echo json_encode($expenseCategory->save());
+	}
+	
+	/**
+	 * Handle request for editing expense category - ajax 
+	 *
+	 * @return json
+	 */
+	public function editExpenseCategoryAction(){
+		
+		if( isset($_POST['expenseLimit']) ){
+			$data = array("id" => $_POST['id'], "user_id" => $_SESSION['userID'], "name" => $_POST['name'], "amount_limit" => $_POST['expenseLimit']);
+		}else{
+			$data = array("id" => $_POST['id'], "user_id" => $_SESSION['userID'], "name" => $_POST['name']);
+		}
+		
+		$expenseCategory = new ExpenseCategory($data);
+		
+		//$expenseCategory->update();
+		
+		echo json_encode($expenseCategory->update());
+	}
+	
+	/**
+	 * Handle request for deleting expense category - ajax 
+	 *
+	 * @return json
+	 */
+	public function deleteExpenseCategoryAction(){
+		
+		$data = array("id" => $_POST['id'], "user_id" => $_SESSION['userID'], "name" => $_POST['name']);
+		
+		$expenseCategory = new ExpenseCategory($data);
+		
+		echo json_encode($expenseCategory->delete());
+	}
+	
+	/**----------          ---------- PAYMENT METHODS ----------          ----------**/
+	
+	/**
+	 * Handle request for adding payment method - ajax 
+	 *
+	 * @return json
+	 */
+	public function addPaymentMethodAction(){
+		
+		$data = array("user_id" => $_SESSION['userID'], "name" => $_POST['name']);
+		
+		$paymentMethod = new PaymentMethod($data);
+		
+		echo json_encode($paymentMethod->save());
+	}
+	
+	/**
+	 * Handle request for editing payment method - ajax 
+	 *
+	 * @return json
+	 */
+	public function editPaymentMethodAction(){
+		
+		$data = array("id" => $_POST['id'], "user_id" => $_SESSION['userID'], "name" => $_POST['name']);
+		
+		$paymentMethod = new PaymentMethod($data);
+		
+		echo json_encode($paymentMethod->update());
+	}
+	
+	/**
+	 * Handle request for deleting payment method - ajax 
+	 *
+	 * @return json
+	 */
+	public function deletePaymentMethodAction(){
+		
+		$data = array("id" => $_POST['id'], "user_id" => $_SESSION['userID'], "name" => $_POST['name']);
+		
+		$paymentMethod = new PaymentMethod($data);
+		
+		echo json_encode($paymentMethod->delete());
 	}
 }
