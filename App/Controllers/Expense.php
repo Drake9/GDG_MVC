@@ -16,7 +16,7 @@ use \App\Flash;
 class Expense extends Authenticated{
 	
 	/**
-	 * Adding new income
+	 * Adding new expense
 	 *
 	 * @return void
 	 */
@@ -46,10 +46,52 @@ class Expense extends Authenticated{
 			$this->redirect('/expense/new');
 		}
 		else{
+			$expenseCategories = ExpenseCategory::getUserExpenseCategories($_SESSION['userID']);
+			$paymentMethods = PaymentMethod::getUserPaymentMethods($_SESSION['userID']);
 			Flash::addMessage('Podane dane są nieprawidłowe.', Flash::WARNING);
 			View::renderTemplate('Expense/new.html', [
-				'expense' => $expense
+				'expense' => $expense,
+				'expense_categories' => $expenseCategories,
+				'payment_methods' => $paymentMethods
 			]);
 		}
+	}
+	
+	/**
+     * Edit expense - ajax request
+     *
+     * @return json
+     */
+	public function editAction(){
+		$expense = new ExpenseModel($_POST);
+		$expense->userID = $_SESSION['userID'];
+		
+		if ($expense->update()){
+			$expense->success = true;
+		}
+		else{
+			$expense->success = false;
+		}
+		
+		echo json_encode($expense);
+	}
+	
+	/**
+     * Delete expense - ajax request
+     *
+     * @return json
+     */
+	public function deleteAction(){
+		$expense = new ExpenseModel($_POST);
+		$expense->userID = $_SESSION['userID'];
+		
+		if ($expense->delete()){
+			$expense->success = true;
+		}
+		else{
+			$expense->success = false;
+		}
+		
+		echo json_encode($expense);
 	}
 }

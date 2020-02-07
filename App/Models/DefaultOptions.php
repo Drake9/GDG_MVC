@@ -44,12 +44,18 @@ abstract class DefaultOptions extends \Core\Model{
 		$sql = "INSERT INTO ".$destinationTable." VALUES";
 		
 		foreach($categories as $key => $category){
-			if($key == 0){
-				$sql .=  " (NULL, :userID, :name".$category['id'].")";
+			
+			if( $key != 0 ){
+				$sql .= ",";
 			}
-			else{
-				$sql .=  ", (NULL, :userID, :name".$category['id'].")";
+			
+			$sql .= " (NULL, :userID, :name".$category['id'];
+			
+			if( $destinationTable == "expense_categories" ){
+				$sql .= ", NULL";
 			}
+			
+			$sql .= ")";
 		}
 		
 		$query = $db->prepare($sql);

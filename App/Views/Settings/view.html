@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}Ustawienia{% endblock %}
+
+{% block footer %}
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+	
+	<script src="/myJS/viewSettings.js"></script>
+	
+{% endblock %}
+
+{% block body %}
+
+	<!-- Modal -->
+	<div class="modal fade" id="universalModal" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+			
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalTitle">Edycja</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label for="categoryName" id="categoryLabel"> Nazwa kategorii </label>
+						<input type="text" class="form-control" id="categoryName" name="categoryName">
+						<div id="nameComment" class="error"></div>
+						
+						<div id="limitParameters" style="display: none;">
+							<br/>
+							<div class="form-check">
+								<input type="checkbox" class="form-check-input" id="amountLimitCheck">
+								<label class="form-check-label" for="amountLimitCheck">Ustal limit wydatków</label>
+							</div>
+							
+							<label for="amount"> Kwota miesięcznego limitu wydatków </label>
+							<input class="form-control" id="expenseLimit" name="amount" disabled>
+							<div id="amountComment" class="error"></div>
+						</div>
+						
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-success" id="confirm1">Potwierdź</button>
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Anuluj</button>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+	<!-- Modal end -->
+	
+	<!-- Modal -->
+	<div class="modal fade" id="userDataModal" tabindex="-1" role="dialog" aria-labelledby="modalTitle2" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+			
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalTitle2">Edycja danych użytkownika</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					
+					<div class="form-group">
+						<label for="inputLogin">Login:</label>
+						<input type="text" class="form-control" id="inputLogin" name="login" value="{{ user.login }}" required>	
+						<div id="loginComment" class="error"></div>
+					</div>
+				
+					<div class="form-group">
+						<label for="inputEmail1">E-mail:</label>
+						<input type="email" class="form-control" id="inputEmail" name="email" value="{{ user.email }}" required>
+						<div id="emailComment" class="error"></div>
+					</div>
+					
+					<br>
+					<p>Jeżeli nie chcesz zmieniać hasła, możesz dwa poniższe pola pozostawić puste.</p>
+					
+					<div class="form-group">
+						<label for="inputPassword1">Nowe hasło:</label>
+						<input type="password" class="form-control" id="inputPassword1" name="password1" value="">
+						<div id="passwordComment1" class="error"></div>
+					</div>
+					
+					<div class="form-group">
+						<label for="inputPassword2">Powtórz nowe hasło:</label>
+						<input type="password" class="form-control" id="inputPassword2" name="password2" value="" required>
+						<div id="passwordComment2" class="error"></div>
+					</div>
+					
+					<br>
+					<div class="form-group">
+						<label for="inputPasswordOld">Na koniec potwierdź tożsamość obecnym hasłem:</label>
+						<input type="password" class="form-control" id="inputPasswordOld" name="passwordOld" value="">
+						<div id="passwordCommentOld" class="error"></div>
+					</div>
+					
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-success" id="confirmUserDataChange">Potwierdź</button>
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Anuluj</button>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+	<!-- Modal end -->
+
+    <section>
+		
+		<div class="container jumbotron shadow-lg">
+			
+			<header>
+				<h1>
+					Ustawienia
+				</h1>
+			</header>
+			
+			<hr class="my-4">
+			
+			{% for message in flash_messages %}
+				<div class="alert alert-{{ message.type }}">
+					{{ message.body }}
+				</div>
+			{% endfor %}
+			
+			<div id="accordion">
+			
+				<div class="card">
+					<div class="card-header" id="headingOne">
+						<h5 class="mb-0">
+							<button id="collapseIncomeCategories" class="btn btn-lg btn-secondary btn-block my-3" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+								Kategorie przychodów
+							</button>
+						</h5>
+					</div>
+
+					<div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+						<div class="card-body" id="card1">
+						
+							<table class="table table-striped table-sm">
+								<thead>
+									<tr>
+										<th scope="col" style="width: 60%">kategoria</th>
+										<th scope="col" style="width: 20%"> </th>
+										<th scope="col" style="width: 20%"> </th>
+									</tr>
+								</thead>
+								<tbody id="incomeCategories">
+									
+								</tbody>
+							</table>
+							
+						</div>
+					</div>
+				</div>
+				
+				<div class="card">
+					<div class="card-header" id="headingTwo">
+						<h5 class="mb-0">
+							<button id="collapseExpenseCategories" class="btn btn-lg btn-secondary btn-block my-3" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+								Kategorie wydatków
+							</button>
+						</h5>
+					</div>
+
+					<div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+						<div class="card-body" id="card2">
+						
+							<table class="table table-striped table-sm">
+								<thead>
+									<tr>
+										<th scope="col" style="width: 40%">kategoria</th>
+										<th scope="col" style="width: 20%">limit</th>
+										<th scope="col" style="width: 20%"> </th>
+										<th scope="col" style="width: 20%"> </th>
+									</tr>
+								</thead>
+								<tbody id="expenseCategories">
+									
+								</tbody>
+							</table>
+							
+						</div>
+					</div>
+				</div>
+				
+				<div class="card">
+					<div class="card-header" id="headingThree">
+						<h5 class="mb-0">
+							<button id="collapsePaymentMethods" class="btn btn-lg btn-secondary btn-block my-3" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+								Sposoby płatności
+							</button>
+						</h5>
+					</div>
+
+					<div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+						<div class="card-body" id="card3">
+						
+							<table class="table table-striped table-sm">
+								<thead>
+									<tr>
+										<th scope="col" style="width: 60%">kategoria</th>
+										<th scope="col" style="width: 20%"> </th>
+										<th scope="col" style="width: 20%"> </th>
+									</tr>
+								</thead>
+								<tbody id="paymentMethods">
+									
+								</tbody>
+							</table>
+							
+						</div>
+					</div>
+				</div>
+				
+				<div class="card">
+					<div class="card-header" id="headingFour">
+						<h5 class="mb-0">
+							<button id="collapseUserData" class="btn btn-lg btn-secondary btn-block my-3" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseThree">
+								Dane użytkownika
+							</button>
+						</h5>
+					</div>
+
+					<div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordion">
+						<div class="card-body p-5" id="card4">
+							
+							<dl>
+								<dt>Login:</dt>
+								<dd id="userDataLogin">{{ user.login }}</dd>
+								<dt>Adres e-mail:</dt>
+								<dd id="userDataEmail">{{ user.email }}</dd>
+								<dt>Hasło:</dt>
+								<dd><i>* ściśle tajne *</i></dd>
+							</dl>
+							
+							<button id="editUserData" class="btn btn-info" data-toggle="modal" data-target="#userDataModal">Edytuj swoje dane użytkownika</button>
+							
+						</div>
+					</div>
+				</div>
+				
+			  
+			</div>
+				
+		</div>
+	
+	</section>
+
+{% endblock %}
