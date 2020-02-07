@@ -13,10 +13,35 @@ class ExpenseCategory extends \App\Category{
 	const SOURCE_TABLE_NAME = "expense_categories";
 	public $errorAmountLimit = null;
 	
-	public static function getUserExpenseCategories($userID){
-		return static::getUsersCategories($userID);
+	
+	public static function getUsersCategories($userID){
+		return static::getUserExpenseCategories($userID);
 	}
 	
+	/**
+     * Get user's all expense categories with amount limit left
+	 *
+	 * @param int userID
+     *
+     * @return 
+     */
+	public static function getUserExpenseCategories($userID){
+		
+		$db = static::getDB();
+		
+		//$sql = "SELECT results.id, results.user_id, results.name, results.amount_limit, results.amount_limit - SUM(results.amount) AS limit_left FROM (SELECT cat.id, cat.user_id, cat.name, cat.amount_limit, expenses.amount FROM `expense_categories` as cat INNER JOIN `expenses` ON cat.id = expenses.category WHERE YEAR(expenses.date) = YEAR(CURDATE()) AND MONTH(expenses.date) = MONTH(CURDATE()) AND cat.user_id = :userID) AS results GROUP BY results.id ";
+		
+		$sql = "SELECT results.id, results.user_id, results.name, results.amount_limit, results.amount_limit - SUM(results.amount) AS limit_left FROM (SELECT cat.id, cat.user_id, cat.name, cat.amount_limit, expenses.amount, expenses.date FROM `expense_categories` as cat LEFT JOIN `expenses` ON cat.id = expenses.category AND YEAR(expenses.date) = YEAR(CURDATE()) AND MONTH(expenses.date) = MONTH(CURDATE()) WHERE cat.user_id = :userID ) AS results GROUP BY results.id";
+			
+		$query = $db->prepare($sql);
+		
+		$query->bindValue(':userID', $userID, PDO::PARAM_INT);
+		
+		$query->execute();
+		
+		return $query->fetchAll();
+	}
+
 	/**
      * Save model with the current property values
      *
@@ -59,27 +84,9 @@ class ExpenseCategory extends \App\Category{
      */
 	public function validate(){
 		
-		if ($this->name == ''){
-			$this->errorName = "Nazwa jest wymagana.";
-		}
-		else if ((strlen($this->name) < 3) || (strlen($this->name) > 50)){
-			$this->errorName = "Nazwa musi posiadać od 3 do 50 znaków!";
-		}
-		else{
-			if( isset($this->id) ){
-				if( static::nameExists($this->user_id, $this->name, $this->id) ){
-					$this->errorName = "Istnieje już kategoria o podanej nazwie.";
-				}
-			}
-			else{
-				if( static::nameExists($this->user_id, $this->name) ){
-					$this->errorName = "Istnieje już kategoria o podanej nazwie.";
-				}
-			}
-		}
+		parent::validate();
 		
 		if (isset($this->amount_limit)){
-			//$this->amount_limit = str_replace(',', '.', $this->amount_limit);
 			
 			if (!is_numeric($this->amount_limit))
 				$this->errorAmountLimit = "Podaj prawidłową kwotę.";

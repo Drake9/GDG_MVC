@@ -18,6 +18,7 @@ $('#collapsePaymentMethods').click(function(){
 })
 
 $('#confirm1').click(userCategoriesAjaxRequest);
+$('#confirmUserDataChange').click(userDataAjaxRequest);
 
 $('#universalModal').on('hidden.bs.modal', function () {
 	$("#nameComment").empty();
@@ -30,6 +31,19 @@ $('#universalModal').on('hidden.bs.modal', function () {
 
 $('#confirmDeleteModal').on('hidden.bs.modal', function () {
 	$("#deleteError").empty();
+});
+
+$('#userDataModal').on('show.bs.modal', function () {
+	$("#inputLogin").val($("#userDataLogin").html());
+	$("#inputEmail").val($("#userDataEmail").html());
+});
+
+$('#userDataModal').on('hidden.bs.modal', function () {
+	$("#loginComment").empty();
+	$("#emailComment").empty();
+	$("#passwordComment1").empty();
+	$("#passwordComment2").empty();
+	$("#passwordCommentOld").empty();
 });
 
 $('#amountLimitCheck').on('click', function () {
@@ -248,7 +262,7 @@ function loadNameToModal(event){
 	$("#categoryName").val(value);
 }*/
 
-/**----------          ---------- UNIVERSAL AJAX REQUEST ----------          ----------**/
+/**----------          ---------- USER CATEGORIES AJAX REQUEST ----------          ----------**/
 
 function userCategoriesAjaxRequest(){
 	
@@ -262,7 +276,7 @@ function userCategoriesAjaxRequest(){
 	var flag = true;
 	
 	if( urlItem == 'ExpenseCategory' && $('#amountLimitCheck').prop('checked') ){
-		var regexp = /^\d+\.\d{0,2}$/;
+		var regexp = /^\d+(\.\d{0,2}){0,1}$/;
 		data['expenseLimit'] = $('#expenseLimit').val();
 		data['expenseLimit'] = data['expenseLimit'].replace(',','.');
 		
@@ -272,7 +286,6 @@ function userCategoriesAjaxRequest(){
 		}
 			
 	}
-	//console.log('/settings/' + urlAction + urlItem + "____" + data["expenseLimit"]);
 
 	if(flag){
 		$.ajax({
@@ -282,9 +295,9 @@ function userCategoriesAjaxRequest(){
 			dataType : 'text',
 			
 			success : function(json) {
-				console.log("Received: " + json);
+				//console.log("Received: " + json);
 				var response = JSON.parse(json);
-				dealWithResponse(response);
+				dealWithResponseCategories(response);
 			},
 		  
 			error : function(xhr, status, error) {
@@ -294,7 +307,7 @@ function userCategoriesAjaxRequest(){
 	}
 }
 
-function dealWithResponse(response){
+function dealWithResponseCategories(response){
 	
 	if(response["success"] == false){
 		$("#nameComment").html(response["errorName"]);
@@ -312,5 +325,137 @@ function dealWithResponse(response){
 		else{
 			loadPaymentMethods();
 		}
+	}
+}
+
+/**----------          ---------- USER DATA AJAX REQUEST ----------          ----------**/
+
+function userDataAjaxRequest(){
+	
+	var data = {};
+	data['login'] =  $('#inputLogin').val();
+	data['email'] =  $('#inputEmail').val();
+	data['password1'] =  $('#inputPassword1').val();
+	data['password2'] =  $('#inputPassword2').val();
+	data['passwordOld'] =  $('#inputPasswordOld').val();
+	
+	var flag1 = validateLogin(data['login']);
+	var flag2 = validateEmail(data['email']);
+	var flag3 = validatePasswords(data['password1'], data['password2']);
+	var flag4 = validatePasswordOld(data['passwordOld']);
+
+	if( flag1 && flag2 && flag3 && flag4 ){
+		$.ajax({
+			url : '/settings/updateProfile',
+			data : data,
+			type : 'POST',
+			dataType : 'text',
+			
+			success : function(json) {
+				console.log("Received: " + json);
+				var response = JSON.parse(json);
+				dealWithResponseUserData(response);
+			},
+		  
+			error : function(xhr, status, error) {
+				alert('Przepraszamy, wystąpił problem! (user data ajax) ' + error);
+			},
+		});
+	}
+}
+
+function validateLogin(login){
+	
+	if(login == ""){
+		$("#loginComment").html("Login jest wymagany.");
+		return false;
+	}else if(login.length < 3 || login.length > 20){
+		$("#loginComment").html("Login musi posiadać od 3 do 20 znaków!");
+		return false;
+	}else{
+		var regexp = /^[0-9a-zA-Z_.-]+$/;
+		if(!regexp.test(login)){
+			$("#loginComment").html("Login może składać się tylko z liter i cyfr (bez polskich znaków)");
+			return false;
+		}
+	}
+	
+	$("#loginComment").empty();
+	return true;
+}
+
+function validateEmail(email){
+	
+	if(email == ""){
+		$("#emailComment").html("Adres e-mail jest wymagany.");
+		return false;
+	}else{
+		var regexp = /^[0-9a-z_.-]+@[0-9a-z.-]+\.[a-z]{2,3}$/i;
+		if(!regexp.test(email)){
+			$("#emailComment").html("Podaj poprawny adres e-mail!");
+			return false;
+		}
+	}
+	
+	$("#emailComment").empty();
+	return true;
+}
+
+function validatePasswords(pass1, pass2){
+	
+	if(pass1 != "" || pass2 != ""){
+		if(pass1 != pass2){
+			$("#passwordComment1").html("Podane hasła nie są identyczne!");
+			return false;
+		}else if(pass1.lenght < 8 || pass1.lenght > 20){
+			$("#passwordComment1").html("Hasło musi posiadać od 8 do 30 znaków!");
+			return false;
+		}else{
+			var regexp = /.*[a-z]+.*/i;
+			
+			if(!regexp.test(pass1)){
+				$("#passwordComment1").html("Hasło musi zawierać przynajmniej jedną literę.");
+				return false;
+			}
+			
+			regexp = /.*\d+.*/i;
+			
+			if(!regexp.test(pass1)){
+				$("#passwordComment1").html("Hasło musi zawierać przynajmniej jedną cyfrę.");
+				return false;
+			}
+			
+			$("#passwordComment1").empty();
+			return true;
+		}
+	}else{
+		$("#passwordComment1").empty();
+		return true;
+	}
+}
+
+function validatePasswordOld(pass){
+	
+	if(pass == ""){
+		$("#passwordCommentOld").html("To pole jest wymagane.");
+		return false;
+	}else{
+		$("#passwordCommentOld").empty();
+		return true;
+	}
+}
+
+function dealWithResponseUserData(response){
+	
+	if(response["success"] == false){
+		$("#loginComment").html(response["errorsLogin"]);
+		$("#emailComment").html(response["errorsEmail"]);
+		$("#passwordComment1").html(response["errorsPassword"]);
+		$("#passwordCommentOld").html(response["errorPasswordOld"]);
+	}
+	else{
+		$("#userDataModal").modal("hide");
+		$("#userDataLogin").html(response["login"]);
+		$("#userDataEmail").html(response["email"]);
 	}
 }

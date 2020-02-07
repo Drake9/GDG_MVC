@@ -28,7 +28,7 @@ abstract class Category extends \Core\Model{
     }
 	
 	/**
-     * Get user's all income categories
+     * Get user's all categories
 	 *
 	 * @param int userID
      *

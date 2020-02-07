@@ -2,15 +2,49 @@ var sumTemp = 0;
 var temp;
 var chart;
 
+var urlController = "";
+var urlAction = "";
+
 $(function(){
 	$.datepicker.setDefaults( $.datepicker.regional[ "pl" ] );
 	
 	$( "#dateStart" ).datepicker({
-		dateFormat: "yy-mm-dd"
+		dateFormat: "yy-mm-dd",
+		beforeShow: function (input, inst) {
+			setTimeout(function () {
+				$( "#ui-datepicker-div" ).appendTo("#datepickerPosition1");
+				inst.dpDiv.css({
+					top: 90,
+					left: 15
+				});
+			}, 0);
+		}
 	});
 	
 	$( "#dateEnd" ).datepicker({
-		dateFormat: "yy-mm-dd"
+		dateFormat: "yy-mm-dd",
+		beforeShow: function (input, inst) {
+			setTimeout(function () {
+				$( "#ui-datepicker-div" ).appendTo("#datepickerPosition2");
+				inst.dpDiv.css({
+					top: 175,
+					left: 15
+				});
+			}, 0);
+		}
+	});
+	
+	$( "#transactionDate" ).datepicker({
+		dateFormat: "yy-mm-dd",
+		beforeShow: function (input, inst) {
+			setTimeout(function () {
+				$( "#ui-datepicker-div" ).appendTo("#datepickerPosition3");
+				inst.dpDiv.css({
+					top: 175,
+					left: 15
+				});
+			}, 0);
+		}
 	});
 	
 	viewCurrentMonthBalance();
@@ -30,6 +64,15 @@ $("#currentYear").on("click", function(){
 
 $("#customBalanceConfirm").on("click", function(){
 	viewCustomBalance();
+});
+
+$('#editOrDeleteConfirm').click(userTransactionAjaxRequest);
+
+$('#editOrDeleteModal').on('hidden.bs.modal', function () {
+	$("#deleteError").empty();
+	
+	$("#transactionAmountComment").empty();
+	$("#transactionDateComment").empty();
 });
 
 function viewCurrentMonthBalance(){
@@ -106,12 +149,32 @@ function viewCustomBalance(){
 }
 
 function loadBalance(start, end){
-	$("#period").html('za okres:&nbsp ' + start + ' - ' + end);
+	$("#periodStart").html(start);
+	$("#periodEnd").html(end);
+
+	loadIncomesByCategories(start, end, function(sumOfIncomes){
+		//console.log("Sum of incomes: " + sumOfIncomes);
+		if(sumOfIncomes == 0){
+			$("#incomesDetailsCard").hide();
+		}else{
+			$("#incomesDetailsCard").show();
+			loadIncomesDetails(start, end);
+		}
+	});
 	
-	loadIncomesByCategories(start, end);
-	loadIncomesDetails(start, end);
-	loadExpensesByCategories(start, end);
-	loadExpensesDetails(start, end);
+	
+	loadExpensesByCategories(start, end, function(sumOfExpenses){
+		//console.log("Sum of expenses: " + sumOfExpenses);
+		if(sumOfExpenses == 0){
+			$("#expensesDetailsCard").hide();
+			$("#chartCard").hide();
+		}else{
+			$("#expensesDetailsCard").show();
+			$("#chartCard").show();
+			loadExpensesDetails(start, end);
+		}
+	});
+	
 }
 
 $(document).ajaxStop(function(){
@@ -120,7 +183,7 @@ $(document).ajaxStop(function(){
 
 /**----------          ---------- INCOMES ----------          ----------**/
 
-function loadIncomesByCategories(start, end){
+function loadIncomesByCategories(start, end, _callback){
 	var userData ={'periodStart': start, 'periodEnd': end};
 	
         $.ajax({
@@ -132,7 +195,8 @@ function loadIncomesByCategories(start, end){
 			success : function(json) {
 				//console.log("Received: " + json);
 				var categoriesData = JSON.parse(json);
-				viewIncomesByCategories(categoriesData);
+				var sum = viewIncomesByCategories(categoriesData);
+				_callback(sum);
 			},
 		  
 			error : function(xhr, status, error) {
@@ -142,15 +206,16 @@ function loadIncomesByCategories(start, end){
 }
 
 function viewIncomesByCategories(categoriesData){
-	sumTemp = 0;
 	$("#incomesGenerally").empty();
-	categoriesData.forEach(viewIncomeCategory);
-	$("#incomesGenerally").append('<tr class="font-weight-bold"><td scope="row">suma</td><td scope="row" id="sumOfIncomes">'+sumTemp.toFixed(2)+'</td></tr>');
-}
-
-function viewIncomeCategory(category){
-	$("#incomesGenerally").append('<tr><td>'+category["category"]+'</td><td>'+category["amount"]+'</td></tr>');
-	sumTemp += Number(category["amount"]);
+	var sumInc = 0;
+	
+	categoriesData.forEach(function(category){
+		$("#incomesGenerally").append('<tr><td>'+category["category"]+'</td><td>'+category["amount"]+'</td></tr>');
+		sumInc += Number(category["amount"]);
+	});
+	
+	$("#incomesGenerally").append('<tr class="font-weight-bold"><td scope="row">suma</td><td scope="row" id="sumOfIncomes">'+sumInc.toFixed(2)+'</td></tr>');
+	return sumInc;
 }
 
 /*************************/
@@ -178,16 +243,20 @@ function loadIncomesDetails(start, end){
 function viewIncomesDetails(incomesData){
 	$("#incomesInDetail").empty();
 	incomesData.forEach(viewIncomeDetails);
+	
+	$(".icon-edit").click(loadModalForEdit);
+	$(".icon-trash-empty").click(loadModalForDelete);
 }
 
 function viewIncomeDetails(income){
-	$("#incomesInDetail").append('<tr id="income_'+income["id"]+'"><td>'+income["date"]+'</td><td>'+income["category"]+'</td><td>'+income["comment"]+'</td><td class="amount">'+income["amount"]+'</td><td><i class="icon-edit"><i class="icon-trash-empty"></td></tr>');
+	$("#incomesInDetail").append('<tr id="income_'+income["id"]+'"><td id="income'+income["id"]+'Date">'+income["date"]+'</td><td id="income'+income["id"]+'Category">'+income["category"]+'</td><td id="income'+income["id"]+'Comment">'+income["comment"]+'</td><td id="income'+income["id"]+'Amount" class="amount">'+income["amount"]+'</td><td><div id="income'+income["id"]+'CategoryID" hidden>'+income["category_id"]+'</div><i id="income'+income["id"]+'Edit" class="icon-edit" data-toggle="modal" data-target="#editOrDeleteModal"></i><i id="income'+income["id"]+'Delete" class="icon-trash-empty" data-toggle="modal" data-target="#editOrDeleteModal"></i></td></tr>');
 }
 
 /**----------          ---------- EXPENSES ----------          ----------**/
 
-function loadExpensesByCategories(start, end){
+function loadExpensesByCategories(start, end, _callback){
 	var userData ={'periodStart': start, 'periodEnd': end};
+	
 	$.ajax({
 		url : '/balance/loadExpensesByCategories',
 		data : userData,
@@ -197,7 +266,8 @@ function loadExpensesByCategories(start, end){
 		success : function(json) {
 			//console.log("Received: " + json);
 			var categoriesData = JSON.parse(json);
-			viewExpensesByCategories(categoriesData);
+			var sum = viewExpensesByCategories(categoriesData);
+			_callback(sum);
 		},
 	  
 		error : function(xhr, status, error) {
@@ -207,23 +277,24 @@ function loadExpensesByCategories(start, end){
 }
 
 function viewExpensesByCategories(categoriesData){
-	sumTemp = 0;
+	sumExp = 0;
 	temp = [];
 	$("#expensesGenerally").empty();
-	categoriesData.forEach(viewExpenseCategory);
-	$("#expensesGenerally").append('<tr class="font-weight-bold"><td scope="row">suma</td><td scope="row" id="sumOfExpenses">'+sumTemp.toFixed(2)+'</td></tr>');
-	reloadChart(temp);
-}
-
-function viewExpenseCategory(category){
-	$("#expensesGenerally").append('<tr><td>'+category["category"]+'</td><td>'+category["amount"]+'</td></tr>');
-	sumTemp += Number(category["amount"]);
 	
-	var dataForChart = {
-	  "kategoria": category["category"],
-	  "kwota": category["amount"],
-	};
-	temp.push(dataForChart);
+	categoriesData.forEach(function(category){
+		$("#expensesGenerally").append('<tr><td>'+category["category"]+'</td><td>'+category["amount"]+'</td></tr>');
+		sumExp += Number(category["amount"]);
+		
+		var dataForChart = {
+		  "kategoria": category["category"],
+		  "kwota": category["amount"],
+		};
+		temp.push(dataForChart);
+	});
+	
+	$("#expensesGenerally").append('<tr class="font-weight-bold"><td scope="row">suma</td><td scope="row" id="sumOfExpenses">'+sumExp.toFixed(2)+'</td></tr>');
+	reloadChart(temp);
+	return sumExp;
 }
 
 function reloadChart(data){
@@ -278,10 +349,13 @@ function loadExpensesDetails(start, end){
 function viewExpensesDetails(expensesData){
 	$("#expensesInDetail").empty();
 	expensesData.forEach(viewExpenseDetails);
+	
+	$(".icon-edit").click(loadModalForEdit);
+	$(".icon-trash-empty").click(loadModalForDelete);
 }
 
 function viewExpenseDetails(expense){
-	$("#expensesInDetail").append('<tr id="expense_'+expense["id"]+'"><td>'+expense["date"]+'</td><td>'+expense["category"]+'</td><td>'+expense["comment"]+'</td><td class="amount">'+expense["amount"]+'</td></tr>');
+	$("#expensesInDetail").append('<tr id="expense_'+expense["id"]+'"><td id="expense'+expense["id"]+'Date">'+expense["date"]+'</td><td id="expense'+expense["id"]+'Category">'+expense["category"]+'</td><td id="expense'+expense["id"]+'Comment">'+expense["comment"]+'</td><td id="expense'+expense["id"]+'Amount" class="amount">'+expense["amount"]+'</td><td><div id="expense'+expense["id"]+'CategoryID" hidden>'+expense["category_id"]+'</div><div id="expense'+expense["id"]+'MethodID" hidden>'+expense["method_id"]+'</div><i id="expense'+expense["id"]+'Edit" class="icon-edit" data-toggle="modal" data-target="#editOrDeleteModal"></i><i id="expense'+expense["id"]+'Delete" class="icon-trash-empty" data-toggle="modal" data-target="#editOrDeleteModal"></i></td></tr>');
 }
 
 /**----------          ---------- BALANCE ----------          ----------**/
@@ -305,5 +379,155 @@ function viewBalance(){
 		$("#balanceComment").removeClass("text-success");
 		$("#balanceComment").addClass("text-danger");
 		$("#balanceComment").html("Uważaj! Popadasz w długi!");
+	}
+}
+
+/**----------          ---------- EDIT OR DELETE TRANSACTION ----------          ----------**/
+
+function loadModalForEdit(event){
+	$("#modalTitle2").html("Edycja");
+	$("#transactionAmount").prop('disabled', false);
+	$("#transactionDate").prop('disabled', false);
+	$("#incomeCategory").prop('disabled', false);
+	$("#expenseCategory").prop('disabled', false);
+	$(".form-check-input").prop('disabled', false);
+	$("#transactionComment").prop('disabled', false);
+	
+	urlAction = "edit";
+	
+	name = event.target.id;
+	loadDataToModal(name);
+}
+
+function loadModalForDelete(){
+	$("#modalTitle2").html("Usunąć transakcję?");
+	$("#transactionAmount").prop('disabled', true);
+	$("#transactionDate").prop('disabled', true);
+	$("#incomeCategory").prop('disabled', true);
+	$("#expenseCategory").prop('disabled', true);
+	$(".form-check-input").prop('disabled', true);
+	$("#transactionComment").prop('disabled', true);
+	
+	urlAction = "delete";
+	
+	name = event.target.id;
+	loadDataToModal(name);
+}
+
+function loadDataToModal(name){
+	var tempData = "";
+	
+	name = name.replace("Edit", "");
+	name = name.replace("Delete", "");
+	
+	if( name.search("expense") == -1 ){
+		urlController = "income";
+		
+		$("#incomeOnly").show();
+		$("#expenseOnly").hide();
+		
+		tempData = $("#"+name+'CategoryID').html();
+		$("#incomeCategory").val(tempData);
+		
+	}else{
+		urlController = "expense";
+		
+		$("#incomeOnly").hide();
+		$("#expenseOnly").show();
+		
+		tempData = $("#"+name+'CategoryID').html();
+		$("#expenseCategory").val(tempData);
+		
+		tempData = $("#"+name+'MethodID').html();
+		$("#method"+tempData).prop("checked", true);
+	}
+	
+	tempData = $("#"+name+'Amount').html();
+	$("#transactionAmount").val(tempData);
+	
+	tempData = $("#"+name+'Date').html();
+	$("#transactionDate").val(tempData);
+	
+	tempData = $("#"+name+'Comment').html();
+	if( tempData == "-" )
+		tempData = "";
+	$("#transactionComment").val(tempData);
+	
+	name = name.replace("income", "");
+	name = name.replace("expense", "");
+	$("#focusedTransactionID").html(name);
+}
+
+/**----------          ---------- UNIVERSAL AJAX REQUEST ----------          ----------**/
+
+function userTransactionAjaxRequest(){
+	
+	var flagSuccess = true;
+	
+	var data = {};
+	data['id'] =  $('#focusedTransactionID').html();
+	
+	if(urlAction == 'edit'){
+		
+		data['date'] = $("#transactionDate").val();
+		data['comment'] = $("#transactionComment").val();
+		
+		if (urlController == "income" ){
+			data['category'] = $("#incomeCategory").val();
+		}else{
+			data['category'] = $("#expenseCategory").val();
+			data['method'] = $('input[name=method]:checked', '#radioPanel').val();
+		}
+		
+		data['amount'] = $("#transactionAmount").val();
+		data['amount'] = data['amount'].replace(',','.');
+		var regexp = /^\d+(\.\d{0,2}){0,1}$/;
+		if(!regexp.test(data['amount'])){
+			flagSuccess = false;
+			$("#transactionAmountComment").html("Podaj prawidłową kwotę.");
+		}
+	}
+
+	if(flagSuccess){
+		//alert(data.toSource());
+		$.ajax({
+			url : '/' + urlController + '/' + urlAction,
+			data : data,
+			type : 'POST',
+			dataType : 'text',
+			
+			success : function(json) {
+				console.log("Received: " + json);
+				var response = JSON.parse(json);
+				dealWithResponse(response);
+			},
+		  
+			error : function(xhr, status, error) {
+				alert('Przepraszamy, wystąpił problem! (universal ajax) ' + error);
+			},
+		});
+	}
+}
+
+function dealWithResponse(response){
+	
+	if(response["success"] == false){
+		
+		if (typeof response.errorsAmount !== 'undefined'){
+			response.errorsAmount.forEach((value, index, arr) => {
+				$("#transactionAmountComment").html(value);
+			});
+		}
+		
+		if (typeof response.errorsDate !== 'undefined'){
+			response.errorsDate.forEach((value, index, arr) => {
+				$("#transactionAmountComment").html(value);
+			});
+		}
+	}
+	else{
+		$("#editOrDeleteModal").modal("hide");
+		
+		loadBalance( $("#periodStart").html(), $("#periodEnd").html() );
 	}
 }

@@ -78,6 +78,18 @@ footer{
 	border-color: #13073a !important;
 }
 
+.icon-edit, .icon-trash-empty{
+	cursor: pointer;
+}
+
+.datepickerPosition{
+	position: relative;
+}
+
+#ui-datepicker-div{
+	position: absolute !important;
+}
+
 /**********************************************/
 
 @media only screen and (max-width: 920px)/*, (min-device-width: 768px) and (max-device-width: 1024px)*/{
@@ -122,4 +134,5 @@ footer{
 	.responsiveTable > table > tbody > tr > td:nth-of-type(2):before { content: "kategoria"; }
 	.responsiveTable > table > tbody > tr > td:nth-of-type(3):before { content: "komentarz"; }
 	.responsiveTable > table > tbody > tr > td:nth-of-type(4):before { content: "kwota"; }
+	.responsiveTable > table > tbody > tr > td:nth-of-type(5):before { content: "opcje"; }
 }

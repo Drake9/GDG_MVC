@@ -43,9 +43,11 @@ class User extends \Core\Model{
      */
     public function save(){
 		
+		$this->success = true;
+		
 		$this->validate();
 		
-		if( empty($this->errorsLogin) && empty($this->errorsEmail) && empty($this->errorsPassword) && empty($this->errorsCaptcha) ){
+		if( $this->success ){
 			
 			$db = static::getDB();
 			
@@ -78,22 +80,33 @@ class User extends \Core\Model{
      *
      * @return void
      */
-    public function validate(){
+    public function validate($passwordVerification = true){
 		
         /**
 		 * Login
 		 */
 		if ($this->login == ''){
-			$this->errorsLogin[] = "Login jest wymagany.";
+			$this->errorsLogin[] = "Login jest wymagany. ";
+			$this->success = false;
 		}
 		if ((strlen($this->login) < 3) || (strlen($this->login) > 20)){
-			$this->errorsLogin[] = "Login musi posiadać od 3 do 20 znaków!";
+			$this->errorsLogin[] = "Login musi posiadać od 3 do 20 znaków! ";
+			$this->success = false;
 		}
 		if (ctype_alnum($this->login) == false){
-			$this->errorsLogin[] = "Login może składać się tylko z liter i cyfr (bez polskich znaków)";
+			$this->errorsLogin[] = "Login może składać się tylko z liter i cyfr (bez polskich znaków). ";
+			$this->success = false;
 		}
-		if(static::loginExists($this->login)){
-			$this->errorsLogin[] = "Podany login jest już zajęty.";
+		if ( isset($this->id) ){
+			if(static::loginExists($this->login, $this->id)){
+				$this->errorsLogin[] = "Podany login jest już zajęty. ";
+				$this->success = false;
+			}
+		}else{
+			if(static::loginExists($this->login)){
+				$this->errorsLogin[] = "Podany login jest już zajęty. ";
+				$this->success = false;
+			}
 		}
 		
 		/**
@@ -102,42 +115,58 @@ class User extends \Core\Model{
 		$emailB = filter_var($this->email, FILTER_SANITIZE_EMAIL);
 		
 		if ((filter_var($emailB, FILTER_VALIDATE_EMAIL) == false) || ($emailB != $this->email)){
-			$this->errorsEmail[] = "Podaj poprawny adres e-mail!";
+			$this->errorsEmail[] = "Podaj poprawny adres e-mail! ";
+			$this->success = false;
 		}	
-		if(static::emailExists($this->email)){
-			$this->errorsEmail[] = "Istnieje już konto przypisane do podanego adresu e-mail.";
+		if ( isset($this->id) ){
+			if(static::emailExists($this->email, $this->id)){
+				$this->errorsEmail[] = "Istnieje już konto przypisane do podanego adresu e-mail. ";
+				$this->success = false;
+			}
+		}else{
+			if(static::emailExists($this->email)){
+				$this->errorsEmail[] = "Istnieje już konto przypisane do podanego adresu e-mail. ";
+				$this->success = false;
+			}
 		}
 		
 		/**
 		 * Password
 		 */	
-		if(isset($this->password1)){
+		if($passwordVerification){
 			
 			if ((strlen($this->password1) < 8) || (strlen($this->password1) > 30)){
-				$this->errorsPassword[] = "Hasło musi posiadać od 8 do 30 znaków!";
+				$this->errorsPassword[] = "Hasło musi posiadać od 8 do 30 znaków! ";
+				$this->success = false;
 			}	
 			if (preg_match('/.*[a-z]+.*/i', $this->password1) == 0){
-				$this->errorsPassword[] = "Hasło musi zawierać przynajmniej jedną literę.";
+				$this->errorsPassword[] = "Hasło musi zawierać przynajmniej jedną literę. ";
+				$this->success = false;
 			}	
 			if (preg_match('/.*\d+.*/i', $this->password1) == 0){
-				$this->errorsPassword[] = "Hasło musi zawierać przynajmniej jedną cyfrę.";
+				$this->errorsPassword[] = "Hasło musi zawierać przynajmniej jedną cyfrę. ";
+				$this->success = false;
 			}	
 			if ($this->password1 != $this->password2){
-				$this->errorsPassword[] = "Podane hasła nie są identyczne!";
+				$this->errorsPassword[] = "Podane hasła nie są identyczne! ";
+				$this->success = false;
 			}
 		}
 
 		/**
 		 * Captcha
 		 */
-		$secret = \App\Config::CAPTCHA_SECRET;
-		
-		$check = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret='.$secret.'&response='.$_POST['g-recaptcha-response']);
-		
-		$reply = json_decode($check);
-		
-		if ($reply->success == false){
-			$this->errorsCaptcha[] = "Potwierdź, że nie jesteś robotem!";
+		if( isset($_POST['g-recaptcha-response']) ){
+			$secret = \App\Config::CAPTCHA_SECRET;
+			
+			$check = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret='.$secret.'&response='.$_POST['g-recaptcha-response']);
+			
+			$reply = json_decode($check);
+			
+			if ($reply->success == false){
+				$this->errorsCaptcha[] = "Potwierdź, że nie jesteś robotem! ";
+				$this->success = false;
+			}
 		}		
 
     }
@@ -150,12 +179,12 @@ class User extends \Core\Model{
      *
      * @return boolean TRUE if exists, FALSE otherwise
      */
-	public static function emailExists($email, $ignore_id = null){	
+	public static function emailExists($email, $ignored_id = null){	
 		
 		$user = static::findByEmail($email);
 		
 		if($user){
-			if($user->id != $ignore_id){
+			if($user->id != $ignored_id){
 				return true;
 			}
 		}
@@ -193,9 +222,18 @@ class User extends \Core\Model{
      *
      * @return boolean TRUE if exists, FALSE otherwise
      */
-	public static function loginExists($login){	
+	public static function loginExists($login, $ignored_id = null){
 		
-		return static::findByLogin($login) !== false;
+		$user = static::findByLogin($login);
+		
+		if($user){
+			if($user->id != $ignored_id){
+				return true;
+			}
+		}
+		
+		return false;
+		//return static::findByLogin($login) !== false;
     }
 	
 	/**
@@ -293,23 +331,35 @@ class User extends \Core\Model{
 	
 	/**
      * Update the user's profile
-	 *
-	 * @param array $data from the edit profile form
      *
-     * @return boolean true if success, false otherwise
+     * @return user model
      */
-	public function updateProfile($data){	
+	public function updateProfile(){
 		
-		$this->login = $data['login'];
-		$this->email = $data['email'];
+		$this->success = true;
+		if($this->password1 == "")
+			$this->password1 = null;
+		if($this->password2 == "")
+			$this->password2 = null;
+
+		$oldData = static::findByID($this->id);
 		
-		if($data['password1'] != ''){
-			$this->password1 = $data['password1'];
+		if( !password_verify($this->passwordOld, $oldData->password) ){
+			
+			$this->success = false;
+			$this->errorPasswordOld = "Podane hasło jest nieprawidłowe.";
+			return $this;
+			
+		}else if( isset($this->password1) && $this->password1 == $oldData->password ){
+			
+			$this->success = false;
+			$this->errorsPassword[] = "Nowe hasło musi być inne, niż aktualnie używane.";
+			return $this;
 		}
 		
-		$this->validate();
+		$this->validate( isset($this->password1) );
 		
-		if(empty($this->errors)){
+		if( $this->success ){
 			$db = static::getDB();
 		
 			$sql = 'UPDATE users
@@ -333,9 +383,9 @@ class User extends \Core\Model{
 				$query->bindValue(':password_hash', $password_hash, PDO::PARAM_STR);
 			}
 			
-			return $query->execute();
+			$query->execute();
 		}
 		
-		return false;
+		return $this;
     }
 }

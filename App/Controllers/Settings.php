@@ -4,9 +4,12 @@ namespace App\Controllers;
 
 use \Core\View;
 use \App\Auth;
+use \App\Models\Income;
+use \App\Models\Expense;
 use \App\Models\IncomeCategory;
 use \App\Models\ExpenseCategory;
 use \App\Models\PaymentMethod;
+use \App\Models\User;
 
 /**
  * Settings controller
@@ -21,7 +24,8 @@ class Settings extends Authenticated{
 	 */
 	public function viewAction(){
 		View::renderTemplate('Settings/view.html', [
-			'settings' => "view"
+			'settings' => "view",
+			'user' => Auth::getUser()
 		]);
 	}
 	
@@ -104,7 +108,13 @@ class Settings extends Authenticated{
 		
 		$incomeCategory = new IncomeCategory($data);
 		
-		echo json_encode($incomeCategory->delete());
+		if( Income::isCategoryInUse($incomeCategory->id) ){
+			$incomeCategory->success = false;
+			$incomeCategory->errorName = "Aby usunąć kategorię będącą w użyciu, najpierw usuń lub edytuj transakcje, które ją wykorzystują.";
+			echo json_encode($incomeCategory);
+		}else{
+			echo json_encode($incomeCategory->delete());
+		}
 	}
 	
 	/**----------          ---------- EXPENSE CATEGORIES ----------          ----------**/
@@ -160,7 +170,13 @@ class Settings extends Authenticated{
 		
 		$expenseCategory = new ExpenseCategory($data);
 		
-		echo json_encode($expenseCategory->delete());
+		if( Expense::isCategoryInUse($expenseCategory->id) ){
+			$expenseCategory->success = false;
+			$expenseCategory->errorName = "Aby usunąć kategorię będącą w użyciu, najpierw usuń lub edytuj transakcje, które ją wykorzystują.";
+			echo json_encode($expenseCategory);
+		}else{
+			echo json_encode($expenseCategory->delete());
+		}
 	}
 	
 	/**----------          ---------- PAYMENT METHODS ----------          ----------**/
@@ -204,6 +220,27 @@ class Settings extends Authenticated{
 		
 		$paymentMethod = new PaymentMethod($data);
 		
-		echo json_encode($paymentMethod->delete());
+		if( Expense::isMethodInUse($paymentMethod->id) ){
+			$paymentMethod->success = false;
+			$paymentMethod->errorName = "Aby usunąć kategorię będącą w użyciu, najpierw usuń lub edytuj transakcje, które ją wykorzystują.";
+			echo json_encode($paymentMethod);
+		}else{
+			echo json_encode($paymentMethod->delete());
+		}
+	}
+	
+	/**----------          ---------- USER PROFILE ----------          ----------**/
+		
+	/**
+	 * Handle request for editing user profile - ajax 
+	 *
+	 * @return json
+	 */
+	public function updateProfileAction(){
+		
+		$user = new User($_POST);
+		$user->id = $_SESSION['userID'];
+		
+		echo json_encode($user->updateProfile());
 	}
 }

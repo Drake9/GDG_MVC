@@ -53,67 +53,56 @@
 	</div>
 	<!-- Modal end -->
 	
-	<!-- Modal --
-	<div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="modalTitle2" aria-hidden="true">
+	<!-- Modal -->
+	<div class="modal fade" id="userDataModal" tabindex="-1" role="dialog" aria-labelledby="modalTitle2" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered" role="document">
 			<div class="modal-content">
 			
 				<div class="modal-header">
-					<h5 class="modal-title" id="modalTitle2">Potwierdź</h5>
+					<h5 class="modal-title" id="modalTitle2">Edycja danych użytkownika</h5>
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
+					
 					<div class="form-group">
-						<label for="categoryForDelete"> Czy naprawdę chcesz usunąć podaną kategorię? </label>
-						<input type="text" class="form-control" id="categoryForDelete" name="categoryForDelete" required>
-						<div id="deleteError" class="error"></div>
+						<label for="inputLogin">Login:</label>
+						<input type="text" class="form-control" id="inputLogin" name="login" value="{{ user.login }}" required>	
+						<div id="loginComment" class="error"></div>
 					</div>
-				</div>
-				<div class="modal-footer">
-					<button type="submit" class="btn btn-success" id="confirmDelete">Potwierdź</button>
-					<button type="button" class="btn btn-danger" data-dismiss="modal">Anuluj</button>
-				</div>
 				
-			</div>
-		</div>
-	</div>
-	<!-- Modal end -->
-	
-	<!-- Modal --
-	<div class="modal fade" id="expenseCategoryModal" tabindex="-1" role="dialog" aria-labelledby="modalTitle3" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered" role="document">
-			<div class="modal-content">
-			
-				<div class="modal-header">
-					<h5 class="modal-title" id="modalTitle3">Edycja</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				<div class="modal-body">
 					<div class="form-group">
-						<label for="categoryName"> Nazwa kategorii </label>
-						<input type="text" class="form-control" id="categoryName" name="categoryName" required>
-						<div id="nameComment" class="error"></div>
-						
-						<div id="limitParameters" style="display: none;">
-							<br/>
-							<div class="form-check">
-								<input type="checkbox" class="form-check-input" id="amountLimitCheck">
-								<label class="form-check-label" for="amountLimitCheck">Ustal limit wydatków</label>
-							</div>
-							
-							<label for="amount"> Kwota miesięcznego limitu wydatków </label>
-							<input type="number" class="form-control" id="expenseLimit" name="amount" step="0.01" min="0.01" disabled>
-							<div id="amountComment" class="error"></div>
-						</div>
-						
+						<label for="inputEmail1">E-mail:</label>
+						<input type="email" class="form-control" id="inputEmail" name="email" value="{{ user.email }}" required>
+						<div id="emailComment" class="error"></div>
 					</div>
+					
+					<br>
+					<p>Jeżeli nie chcesz zmieniać hasła, możesz dwa poniższe pola pozostawić puste.</p>
+					
+					<div class="form-group">
+						<label for="inputPassword1">Nowe hasło:</label>
+						<input type="password" class="form-control" id="inputPassword1" name="password1" value="">
+						<div id="passwordComment1" class="error"></div>
+					</div>
+					
+					<div class="form-group">
+						<label for="inputPassword2">Powtórz nowe hasło:</label>
+						<input type="password" class="form-control" id="inputPassword2" name="password2" value="" required>
+						<div id="passwordComment2" class="error"></div>
+					</div>
+					
+					<br>
+					<div class="form-group">
+						<label for="inputPasswordOld">Na koniec potwierdź tożsamość obecnym hasłem:</label>
+						<input type="password" class="form-control" id="inputPasswordOld" name="passwordOld" value="">
+						<div id="passwordCommentOld" class="error"></div>
+					</div>
+					
 				</div>
 				<div class="modal-footer">
-					<button type="submit" class="btn btn-success" id="confirm1">Potwierdź</button>
+					<button type="submit" class="btn btn-success" id="confirmUserDataChange">Potwierdź</button>
 					<button type="button" class="btn btn-danger" data-dismiss="modal">Anuluj</button>
 				</div>
 				
@@ -240,9 +229,18 @@
 					</div>
 
 					<div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordion">
-						<div class="card-body" id="card4">
-						
-							Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+						<div class="card-body p-5" id="card4">
+							
+							<dl>
+								<dt>Login:</dt>
+								<dd id="userDataLogin">{{ user.login }}</dd>
+								<dt>Adres e-mail:</dt>
+								<dd id="userDataEmail">{{ user.email }}</dd>
+								<dt>Hasło:</dt>
+								<dd><i>* ściśle tajne *</i></dd>
+							</dl>
+							
+							<button id="editUserData" class="btn btn-info" data-toggle="modal" data-target="#userDataModal">Edytuj swoje dane użytkownika</button>
 							
 						</div>
 					</div>

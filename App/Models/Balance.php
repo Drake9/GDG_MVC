@@ -94,7 +94,7 @@ class Balance extends \Core\Model{
 		
 		$db = static::getDB();
 		
-		$sql = "SELECT inc.id, inc.date, cat.name as category, inc.comment, inc.amount
+		$sql = "SELECT inc.id, inc.date, cat.name as category, cat.id as category_id, inc.comment, inc.amount
 			FROM `incomes` AS inc, `income_categories` AS cat
 			WHERE inc.user_id = :userID
 			AND inc.category = cat.id
@@ -121,10 +121,11 @@ class Balance extends \Core\Model{
 		
 		$db = static::getDB();
 		
-		$sql = "SELECT exp.id, exp.date, cat.name as category, exp.comment, exp.amount
-			FROM `expenses` AS exp, `expense_categories` AS cat
+		$sql = "SELECT exp.id, exp.date, cat.name as category, cat.id as category_id, exp.comment, exp.amount, exp.method, met.id as method_id
+			FROM `expenses` AS exp, `expense_categories` AS cat, `payment_methods` AS met
 			WHERE exp.user_id = :userID
 			AND exp.category = cat.id
+			AND exp.method = met.id
 			AND exp.date BETWEEN :dateStart AND :dateEnd
 			ORDER BY exp.date";
 			

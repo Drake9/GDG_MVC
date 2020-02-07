@@ -24,7 +24,7 @@
 
 {% block body %}
 
-	<!-- Modal -->
+	<!-- Modal: custom period date pickers -->
 	<div class="modal fade" id="customPeriodModal" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered" role="document">
 			<div class="modal-content">
@@ -34,13 +34,13 @@
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
-				<div class="modal-body">
-					<div class="form-group">
+				<div class="modal-body datepickerPosition">
+					<div class="form-group" id="datepickerPosition1">
 						<label for="dateStart"> Początek </label>
 						<input type="text" class="form-control" id="dateStart" name="dateStart" required>
 						<div id="dateStartComment" class="error"></div>
 					</div>
-					<div class="form-group">
+					<div class="form-group" id="datepickerPosition2">
 						<label for="dateEnd"> Koniec </label>
 						<input type="text" class="form-control" id="dateEnd" name="dateEnd" required>
 						<div id="dateEndComment" class="error"></div>
@@ -51,6 +51,77 @@
 					<button type="submit" class="btn btn-success" id="customBalanceConfirm">Potwierdź</button>
 					<button type="button" class="btn btn-danger" data-dismiss="modal">Anuluj</button>
 				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Modal end -->
+	
+	<!-- Modal: edit or delete transaction -->
+	<div class="modal fade" id="editOrDeleteModal" tabindex="-1" role="dialog" aria-labelledby="modalTitle2" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+			
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalTitle2">Edycja</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				
+				<div class="modal-body datepickerPosition">
+					<div id="focusedTransactionID" hidden></div>
+					<div class="form-group">
+						<label for="transactionAmount"> Kwota </label>
+						<input class="form-control" id="transactionAmount" name="transactionAmount">
+						<div id="transactionAmountComment" class="error"></div>
+					</div>
+					<div class="form-group" id="datepickerPosition3">
+						<label for="transactionDate"> Data </label>
+						<input type="text" class="form-control" id="transactionDate" name="transactionDate">
+						<div id="transactionDateComment" class="error"></div>
+					</div>
+					<div id="incomeOnly">
+						<div class="form-group">
+							<label for="incomeCategory"> Kategoria </label>
+							<select class="custom-select form-control" id="incomeCategory" name="incomeCategory">
+								<option value=""> Wybierz kategorię </option>
+								{% for category in income_categories %}
+									<option value={{ category.id }}> {{ category.name }} </option>;
+								{% endfor %}
+							</select>
+						</div>
+					</div>
+					<div id="expenseOnly">
+						<div class="form-group">
+							<label for="expenseCategory"> Kategoria </label>
+							<select class="custom-select form-control" id="expenseCategory" name="expenseCategory">
+								<option value=""> Wybierz kategorię </option>
+								{% for category in expense_categories %}
+									<option value={{ category.id }}> {{ category.name }} </option>;
+								{% endfor %}
+							</select>
+						</div>
+						<label for "radioPanel" id="radioLabel" class="radio control-label"> Sposób płatności </label>
+						<div class="form-group form-control" id="radioPanel">
+							{% for method in payment_methods %}
+								<div class="form-check">
+									<input class="form-check-input" type="radio" name="method" id='method{{ method.id }}' value={{ method.id }} required>
+									<label class="form-check-label" for='method{{ method.id }}'> {{ method.name }} </label>
+								</div>
+							{% endfor %}
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="transactionComment"> Komentarz (opcjonalnie) </label>
+						<textarea class="form-control" name="transactionComment" id="transactionComment" rows="2" cols="50" maxlength="100" minlength="10"></textarea>
+					</div>
+				</div>
+				
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-success" id="editOrDeleteConfirm">Potwierdź</button>
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Anuluj</button>
+				</div>
+				
 			</div>
 		</div>
 	</div>
@@ -74,7 +145,7 @@
 								<div class="btn dropdown-item" data-toggle="modal" data-target="#customPeriodModal">Niestandardowy</div>
 							</div>
 						</div>
-						<h3 id="period">za okres: </h3>
+						<h3 id="period">za okres:&nbsp <span id="periodStart"></span> - <span id="periodEnd"></span></h3>
 					</div>
 				</div>
 			</div>
@@ -144,7 +215,7 @@
 				</div>
 			</div>
 			
-			<div class="col-md-6 mb-4 px-0 px-sm-3">
+			<div class="col-md-6 mb-4 px-0 px-sm-3" id="chartCard">
 				<div class="card">
 					<div class="card-body">
 						<h2 class="card-title text-center">Wydatki - proporcje</h2>
@@ -157,7 +228,7 @@
 		
 		<div class="row container-fluid mx-auto">
 		
-			<div class="col-md-6 mb-4 px-0 px-sm-3">
+			<div class="col-lg-6 mb-4 px-0 px-sm-3" id="incomesDetailsCard">
 				<div class="card">
 					<div class="card-body responsiveTable">
 						<h2 class="card-title text-center">Przychody - szczegółowo</h2>
@@ -179,7 +250,7 @@
 				</div>
 			</div>
 			
-			<div class="col-md-6 mb-4 px-0 px-sm-3">
+			<div class="col-lg-6 mb-4 px-0 px-sm-3" id="expensesDetailsCard">
 				<div class="card">
 					<div class="card-body responsiveTable">
 						<h2 class="card-title text-center">Wydatki - szczegółowo</h2>
@@ -188,8 +259,9 @@
 								<tr>
 									<th scope="col" style="width: 20%">data</th>
 									<th scope="col" style="width: 20%">kategoria</th>
-									<th scope="col" style="width: 40%">komentarz</th>
+									<th scope="col" style="width: 30%">komentarz</th>
 									<th scope="col" style="width: 20%">kwota</th>
+									<th scope="col" style="width: 10%">opcje</th>
 								</tr>
 							</thead>
 							<tbody id="expensesInDetail">
