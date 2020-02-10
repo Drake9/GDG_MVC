@@ -44,7 +44,6 @@ class Expense extends \Core\Model{
     public function save(){
 		
 		$this->validate();
-		$this->validateAmountLimit();
 		
 		if( empty($this->errorsAmount) && empty($this->errorsDate) && empty($this->errorsCategory) && empty($this->errorsMethod) && empty($this->errorsComment) ){
 			
@@ -158,7 +157,7 @@ class Expense extends \Core\Model{
      *
      * @return null or decimal
      */
-	private function getAmountLimitLeft(){
+	public function getAmountLimitLeft(){
 		$db = static::getDB();
 		
 		$sql = "SELECT amount_limit AS monthly_limit FROM expense_categories WHERE id = :categoryID";
@@ -182,12 +181,12 @@ class Expense extends \Core\Model{
 		$query = $db->prepare($sql);
 		
 		if( isset($this->id) ){
-			$query->bindParam(':ignoredID', $this->id);
+			$query->bindValue(':ignoredID', $this->id, PARAM_INT);
 		}
 			
 		$query->bindValue(':userID', $this->userID, PDO::PARAM_INT);
 		$query->bindValue(':categoryID', $this->category, PDO::PARAM_INT);
-		$query->bindParam(':date', $this->date);
+		$query->bindValue(':date', $this->date, PDO::PARAM_STR);
 		
 		$query->execute();
 		
@@ -205,7 +204,6 @@ class Expense extends \Core\Model{
     public function update(){
 		
 		$this->validate();
-		$this->validateAmountLimit();
 		
 		if( empty($this->errorsAmount) && empty($this->errorsDate) && empty($this->errorsCategory) && empty($this->errorsMethod) && empty($this->errorsComment) ){
 			
