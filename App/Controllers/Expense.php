@@ -94,4 +94,25 @@ class Expense extends Authenticated{
 		
 		echo json_encode($expense);
 	}
+	
+	/**
+     * Get this month amount limit - ajax request
+     *
+     * @return json
+     */
+	public function getLimitAction(){
+		$expense = new ExpenseModel($_POST);
+		$expense->userID = $_SESSION['userID'];
+		
+		$amountLimit = $expense->getAmountLimitLeft();
+		/*
+		if ($expense->update()){
+			$expense->success = true;
+		}
+		else{
+			$expense->success = false;
+		}
+		*/
+		echo json_encode($amountLimit);
+	}
 }
