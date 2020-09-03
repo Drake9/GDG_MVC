@@ -105,14 +105,7 @@ class Expense extends Authenticated{
 		$expense->userID = $_SESSION['userID'];
 		
 		$amountLimit = $expense->getAmountLimitLeft();
-		/*
-		if ($expense->update()){
-			$expense->success = true;
-		}
-		else{
-			$expense->success = false;
-		}
-		*/
+
 		echo json_encode($amountLimit);
 	}
 }
